@@ -1,0 +1,284 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/paul-gross/winter/bench/schema/run-result.schema.json",
+  "title": "Winter autonomy benchmark — per-run result record",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "benchmark_version",
+    "run_id",
+    "cell",
+    "pins",
+    "result_class",
+    "intervention",
+    "checks",
+    "evidence",
+    "delivery",
+    "efficiency"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "benchmark_version": { "type": "string" },
+    "run_id": {
+      "type": "string",
+      "description": "<topology>-<condition>-<prompt>-<model>-<host>-r<N>"
+    },
+    "created_at": { "type": "string", "format": "date-time" },
+    "cell": {
+      "type": "object",
+      "required": ["topology", "condition", "prompt", "model", "host"],
+      "properties": {
+        "topology": { "enum": ["mono", "poly"] },
+        "condition": { "enum": ["plain", "winter", "winter-workflow"] },
+        "prompt": {
+          "enum": [
+            "t1-delete-item",
+            "t2-worker-liveness",
+            "t3-rename-label-title",
+            "t4-repository-split",
+            "t5-compound"
+          ]
+        },
+        "model": {
+          "type": "string",
+          "description": "Exact model id used by the implementation agent"
+        },
+        "host": { "enum": ["claude", "codex", "opencode", "fake"] },
+        "host_version": { "type": "string" },
+        "repetition": { "type": "integer", "minimum": 1, "default": 1 }
+      },
+      "additionalProperties": false
+    },
+    "pins": {
+      "type": "object",
+      "required": ["mono_sha"],
+      "properties": {
+        "mono_sha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "fixture_checksum": {
+          "type": "string",
+          "description": "Checksum of the derived poly fixture set (poly cells only)"
+        }
+      },
+      "additionalProperties": false
+    },
+    "result_class": {
+      "enum": [
+        "fully_achieved_unattended",
+        "partially_achieved_unattended",
+        "not_achieved_unattended",
+        "human_intervention_required"
+      ]
+    },
+    "intervention": {
+      "type": "object",
+      "required": ["engineering_intervention"],
+      "properties": {
+        "engineering_intervention": { "type": "boolean" },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["kind", "description"],
+            "properties": {
+              "kind": { "enum": ["engineering", "non_engineering"] },
+              "description": { "type": "string" },
+              "at": { "type": "string", "format": "date-time" }
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "stall": {
+      "type": "object",
+      "required": ["detected", "signal"],
+      "properties": {
+        "detected": { "type": "boolean" },
+        "signal": {
+          "enum": ["none", "awaiting_input", "boundary", "crashed"],
+          "description": "Which mechanical stall signal fired, if any"
+        }
+      },
+      "additionalProperties": false
+    },
+    "checks": {
+      "type": "array",
+      "description": "Deterministic grader results (phase 5)",
+      "items": {
+        "type": "object",
+        "required": ["id", "layer", "required", "status"],
+        "properties": {
+          "id": { "type": "string" },
+          "requirement": { "type": "string" },
+          "layer": {
+            "enum": [
+              "ui",
+              "api",
+              "db",
+              "broker",
+              "regression",
+              "structural",
+              "delivery"
+            ]
+          },
+          "required": {
+            "type": "boolean",
+            "description": "A failed required check caps the result class below fully_achieved"
+          },
+          "status": { "enum": ["pass", "fail", "error", "skipped"] },
+          "detail": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "description": "'Did they run it?' signals — informative, not the arbiter of correctness",
+      "required": [
+        "app_launched",
+        "db_user_rows",
+        "db_worker_rows",
+        "broker_deliveries",
+        "capability_matrix_present"
+      ],
+      "properties": {
+        "app_launched": {
+          "type": "boolean",
+          "description": "Transcript mentions starting services (uvicorn/./up/docker/vite/curl/playwright)"
+        },
+        "db_user_rows": { "type": "integer", "minimum": 0 },
+        "db_worker_rows": { "type": "integer", "minimum": 0 },
+        "broker_deliveries": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "heartbeats queue publish/delivery count observed in the agent's environment"
+        },
+        "capability_matrix_present": { "type": "boolean" },
+        "capability_matrix_coverage": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Fraction of acceptance criteria with a matrix row"
+        }
+      },
+      "additionalProperties": false
+    },
+    "delivery": {
+      "type": "object",
+      "required": ["committed", "branch_cohesion", "repos"],
+      "properties": {
+        "committed": {
+          "type": "boolean",
+          "description": "At least one commit on a non-default branch in every touched repo"
+        },
+        "branch_cohesion": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Poly: fraction of touched repos on the modal branch name; mono: 1.0; null when nothing was committed"
+        },
+        "repos": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["repo", "touched"],
+            "properties": {
+              "repo": { "type": "string" },
+              "touched": { "type": "boolean" },
+              "branch": { "type": ["string", "null"] },
+              "default_branch": { "type": "string" },
+              "commits": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["sha", "message"],
+                  "properties": {
+                    "sha": { "type": "string" },
+                    "message": { "type": "string" }
+                  }
+                }
+              },
+              "diff_stat": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "judge": {
+      "type": ["object", "null"],
+      "description": "Blinded qualitative review (phase 6); null when the run never reached judging",
+      "required": ["model", "blind_id", "dimensions", "proposed_class"],
+      "properties": {
+        "model": { "type": "string" },
+        "config_id": { "type": "string" },
+        "blind_id": { "type": "string" },
+        "dimensions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "score", "evidence"],
+            "properties": {
+              "id": {
+                "enum": [
+                  "requirement_completeness",
+                  "coherence_maintainability",
+                  "refactor_authenticity",
+                  "cross_boundary_consistency",
+                  "material_defects",
+                  "scope_violations",
+                  "delivery_quality"
+                ]
+              },
+              "score": { "enum": ["met", "partial", "not_met", "not_applicable"] },
+              "evidence": {
+                "type": "string",
+                "description": "Citation from the diff/artifacts backing the score"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "material_unmet": { "type": "boolean" },
+        "proposed_class": {
+          "enum": [
+            "fully_achieved_unattended",
+            "partially_achieved_unattended",
+            "not_achieved_unattended"
+          ]
+        },
+        "adjudication": {
+          "type": "object",
+          "properties": {
+            "routed": { "type": "boolean" },
+            "reason": { "type": "string" },
+            "resolved_by": { "enum": ["second_judge", "human", null] }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "efficiency": {
+      "type": "object",
+      "description": "Recorded, never scored — fairness/troubleshooting controls only",
+      "properties": {
+        "recorded_not_scored": { "const": true },
+        "wall_clock_seconds": { "type": ["number", "null"] },
+        "tokens_input": { "type": ["integer", "null"] },
+        "tokens_output": { "type": ["integer", "null"] },
+        "cost_usd": { "type": ["number", "null"] },
+        "commands_executed": { "type": ["integer", "null"] },
+        "failed_commands": { "type": ["integer", "null"] },
+        "retries": { "type": ["integer", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "artifacts": {
+      "type": "object",
+      "description": "Relative paths inside the run directory",
+      "additionalProperties": { "type": "string" }
+    }
+  },
+  "additionalProperties": false
+}
