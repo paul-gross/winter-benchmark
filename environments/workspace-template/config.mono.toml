@@ -1,0 +1,76 @@
+# Benchmark workspace configuration — MONO topology.
+# {{ORIGIN_DIR}} is substituted by build_env.py with the pinned local origins.
+# The workspace declares only what its benchmark condition needs: the one
+# application repo plus service orchestration. The winter-workflow condition
+# additionally appends the winter-workflow extension block below.
+
+main_branch = "master"
+
+# Distinct prefix/band from any developer workspace on the same machine, so an
+# unsandboxed harness dry-run can never collide with a real workspace.
+service_prefix = "wtsb"
+base_port = 6000
+ports_per_env = 20
+
+[env.feature.vars]
+WTS_WEB_PORT = "${WINTER_PORT_BASE+10}"
+WTS_API_PORT = "${WINTER_PORT_BASE+11}"
+WTS_DB_PORT  = "${WTSB_POSTGRES_PORT}"
+DATABASE_URL = "postgresql://wts_${WINTER_ENV}:wts_${WINTER_ENV}@localhost:${WTS_DB_PORT}/wts_${WINTER_ENV}"
+
+[env.workspace.vars]
+RABBITMQ_PORT           = "${WINTER_WORKSPACE_PORT_BASE+1}"
+WTSB_RABBITMQ_AMQP_PORT = "${WINTER_WORKSPACE_PORT_BASE+1}"
+WTSB_RABBITMQ_MGMT_PORT = "${WINTER_WORKSPACE_PORT_BASE+2}"
+WTSB_POSTGRES_PORT      = "${WINTER_WORKSPACE_PORT_BASE+3}"
+
+[capabilities]
+service = ["winter-service-docker", "winter-service-tmux"]
+
+[[project_repository]]
+name = "winter-test-service"
+url = "{{ORIGIN_DIR}}/winter-test-service.git"
+
+[[standalone_repository]]
+name = "winter-service-tmux"
+url = "{{ORIGIN_DIR}}/winter-service-tmux.git"
+path = ".winter/ext/service-tmux"
+
+[[standalone_repository]]
+name = "winter-service-docker"
+url = "{{ORIGIN_DIR}}/winter-service-docker.git"
+path = ".winter/ext/service-docker"
+
+# {{WORKFLOW_EXTENSION}}
+
+[[provision.dependency]]
+scope = "feature-environment"
+project = "winter-test-service"
+apply = "uv sync && (cd web && npm install --no-audit --no-fund)"
+
+# Per-env RabbitMQ slice — vhost + user wts-<env> in the shared broker.
+[[provision.resource]]
+scope = "feature-environment"
+apply = [
+  "docker exec wtsb-rabbitmq rabbitmqctl list_vhosts --quiet | grep -qx \"wts-$WINTER_ENV\" || docker exec wtsb-rabbitmq rabbitmqctl add_vhost \"wts-$WINTER_ENV\"",
+  "docker exec wtsb-rabbitmq rabbitmqctl list_users --quiet | awk '{print $1}' | grep -qx \"wts-$WINTER_ENV\" || docker exec wtsb-rabbitmq rabbitmqctl add_user \"wts-$WINTER_ENV\" \"wts-$WINTER_ENV\"",
+  "docker exec wtsb-rabbitmq rabbitmqctl set_permissions -p \"wts-$WINTER_ENV\" \"wts-$WINTER_ENV\" '.*' '.*' '.*'",
+]
+destroy = [
+  "docker exec wtsb-rabbitmq rabbitmqctl delete_vhost \"wts-$WINTER_ENV\" || true",
+  "docker exec wtsb-rabbitmq rabbitmqctl delete_user \"wts-$WINTER_ENV\" || true",
+]
+required_services = ["workspace/rabbitmq"]
+
+# Per-env Postgres slice — database + role wts_<env> in the shared instance.
+[[provision.resource]]
+scope = "feature-environment"
+apply = [
+  "docker exec wtsb-postgres psql -U wts -tAc \"SELECT 1 FROM pg_roles WHERE rolname='wts_$WINTER_ENV'\" | grep -q 1 || docker exec wtsb-postgres psql -U wts -c \"CREATE ROLE wts_$WINTER_ENV LOGIN PASSWORD 'wts_$WINTER_ENV'\"",
+  "docker exec wtsb-postgres psql -U wts -tAc \"SELECT 1 FROM pg_database WHERE datname='wts_$WINTER_ENV'\" | grep -q 1 || docker exec wtsb-postgres psql -U wts -c \"CREATE DATABASE wts_$WINTER_ENV OWNER wts_$WINTER_ENV\"",
+]
+destroy = [
+  "docker exec wtsb-postgres psql -U wts -c \"DROP DATABASE IF EXISTS wts_$WINTER_ENV WITH (FORCE)\" || true",
+  "docker exec wtsb-postgres psql -U wts -c \"DROP ROLE IF EXISTS wts_$WINTER_ENV\" || true",
+]
+required_services = ["workspace/db"]

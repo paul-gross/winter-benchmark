@@ -1,0 +1,22 @@
+# Pinned revisions for every repository a benchmark environment is built from.
+# Every run of benchmark version (see bench/VERSION) starts from exactly these
+# SHAs; bump them only with a benchmark version bump.
+
+[pins]
+# The application fixture (monorepo source of truth; the poly fixture set is
+# derived from this same commit — see bench/derive-poly/manifest.toml, which
+# must always agree with this pin).
+winter-test-service = "e7249413eee9b9c6e6cb5ce90cf5280dfc57e20d"
+
+# The Winter framework the winter/* conditions run. Deliberately a commit that
+# predates bench/ so the benchmark harness (prompts, hidden graders) can never
+# leak into the agent-visible workspace clone; the builder additionally strips
+# bench/ in the workspace-configuration commit as a belt-and-braces guard.
+winter = "4b5eeaab68ef3caa8020ae41c043e57bcdbff948"
+
+# Extensions installed in the winter/* conditions.
+winter-service-tmux = "6041b8c5d6de49ef65cead564f62a9999e5645b9"
+winter-service-docker = "7cb0128c910df0e95593af610479ddfd4e866698"
+
+# Installed only in the winter-workflow condition.
+winter-workflow = "ca098f1accb9433567a985d3211c17352f5ec17e"

@@ -1,0 +1,28 @@
+# winter-service-tmux manifest — benchmark POLY workspace.
+# api / web / worker launched from their sibling worktrees. Postgres + RabbitMQ
+# are workspace singletons under winter-service-docker.
+
+layout_hook = "layout-hook.sh"
+
+[[service]]
+name = "api"
+target = "0.0"
+cmd = "cd wts-api && uv run python -m app"
+
+[service.health]
+type = "url"
+target = "http://localhost:${WTS_API_PORT}/api/health"
+
+[[service]]
+name = "web"
+target = "0.1"
+cmd = "cd wts-web && npm run dev"
+
+[service.health]
+type = "url"
+target = "http://localhost:${WTS_WEB_PORT}/"
+
+[[service]]
+name = "worker"
+target = "0.2"
+cmd = "cd wts-worker && uv run python -m worker.main"

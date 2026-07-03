@@ -1,0 +1,38 @@
+# Workspace-scoped singleton services for the benchmark workspace: the shared
+# Postgres and RabbitMQ broker. Host ports resolve from the injected workspace
+# env ([env.workspace.vars] in .winter/config.toml); the inline :- defaults
+# (6001/6002/6003, base_port 6000) keep the file runnable by hand.
+
+services:
+  db:
+    image: postgres:16
+    container_name: wtsb-postgres
+    environment:
+      POSTGRES_USER: wts
+      POSTGRES_PASSWORD: wts
+      POSTGRES_DB: wts
+    ports:
+      - "${WTSB_POSTGRES_PORT:-6003}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wts"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: wtsb-rabbitmq
+    ports:
+      - "${WTSB_RABBITMQ_AMQP_PORT:-6001}:5672"
+      - "${WTSB_RABBITMQ_MGMT_PORT:-6002}:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres-data:
+    driver: local

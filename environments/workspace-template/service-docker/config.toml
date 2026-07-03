@@ -1,0 +1,14 @@
+# winter-service-docker manifest — benchmark workspace (both topologies).
+# The workspace-shared Postgres `db` and RabbitMQ `rabbitmq` broker, compose-
+# managed singletons with healthchecks so `winter service up workspace --wait`
+# is a genuine readiness gate.
+
+workspace_compose_file = "workspace-compose.yaml"
+
+[[service]]
+name = "db"
+scope = "workspace"
+
+[[service]]
+name = "rabbitmq"
+scope = "workspace"
