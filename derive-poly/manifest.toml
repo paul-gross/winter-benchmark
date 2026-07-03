@@ -1,0 +1,76 @@
+# Split manifest — the polyrepo fixture as a pure function of the monorepo.
+#
+# derive_poly.py reads this file and the pinned winter-test-service commit and
+# emits five repositories. Python source is copied byte-identically; only the
+# packaging metadata below is synthesized. The three derivation decisions from
+# paul-gross/winter#120 are encoded here:
+#
+#   1. Inter-repo dependency mode: path dependencies to sibling checkouts
+#      ([repo.sources] entries), the honest analog of five repos cloned side by
+#      side — not git refs.
+#   2. Shared root infra: wts_logging.py is vendored into each app repo that
+#      imports it (vendor_logging = true). Deterministic duplication is
+#      acceptable because it is generated, never hand-edited.
+#   3. Lockfile strategy: each repo resolves its own uv.lock independently
+#      (derive_poly.py --lock), realistic polyrepo behavior.
+
+[source]
+repo = "winter-test-service"
+pinned_sha = "e7249413eee9b9c6e6cb5ce90cf5280dfc57e20d"
+
+# ---------------------------------------------------------------------------
+# Shared libraries
+# ---------------------------------------------------------------------------
+
+[[repo]]
+name = "wts-persistence"
+kind = "python-lib"
+description = "Shared persistence/domain library for the wts application"
+# mono subtree -> poly path (copied byte-identically)
+copy = [["wts_persistence", "wts_persistence"]]
+package = "wts_persistence"
+dependencies = ["sqlalchemy>=2.0,<3.0", "psycopg[binary]==3.2.3"]
+
+[[repo]]
+name = "wts-messaging"
+kind = "python-lib"
+description = "Shared messaging library for the wts application"
+copy = [["wts_messaging", "wts_messaging"]]
+package = "wts_messaging"
+dependencies = ["pika==1.3.2"]
+
+# ---------------------------------------------------------------------------
+# Applications
+# ---------------------------------------------------------------------------
+
+[[repo]]
+name = "wts-api"
+kind = "python-app"
+description = "FastAPI JSON API for the wts application"
+copy = [["api/app", "app"]]
+vendor_logging = true
+dependencies = ["fastapi==0.115.6", "uvicorn[standard]==0.32.1", "wts-persistence"]
+run = "uv run python -m app"
+
+[repo.sources]
+wts-persistence = "../wts-persistence"
+
+[[repo]]
+name = "wts-worker"
+kind = "python-app"
+description = "Background heartbeat worker for the wts application"
+copy = [["worker", "worker"]]
+vendor_logging = true
+dependencies = ["wts-persistence", "wts-messaging"]
+run = "uv run python -m worker.main"
+
+[repo.sources]
+wts-persistence = "../wts-persistence"
+wts-messaging = "../wts-messaging"
+
+[[repo]]
+name = "wts-web"
+kind = "node-app"
+description = "React + Vite web UI for the wts application"
+copy = [["web", "."]]
+run = "npm run dev"
