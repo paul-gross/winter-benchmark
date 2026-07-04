@@ -20,7 +20,6 @@ import json
 import os
 import re
 import secrets
-import shutil
 import socket
 import subprocess
 import sys
@@ -360,7 +359,9 @@ class Stack:
                     elif url.path == "/broker/consume-one":
                         payload = stack.consume_one()
                     else:
-                        self.send_response(404); self.end_headers(); return
+                        self.send_response(404)
+                        self.end_headers()
+                        return
                     body = json.dumps(payload).encode()
                     self.send_response(200)
                     self.send_header("Content-Type", "application/json")
@@ -429,7 +430,7 @@ def added_python_lines_outside_persistence(stack: Stack) -> list[str]:
 
 
 def check_seam(stack: Stack, check: Check) -> None:
-    offending = [l for l in added_python_lines_outside_persistence(stack) if SQL_MARKERS.search(l)]
+    offending = [line for line in added_python_lines_outside_persistence(stack) if SQL_MARKERS.search(line)]
     check.record(not offending, "; ".join(offending[:5]) if offending else "no SQL added outside the persistence layer")
 
 

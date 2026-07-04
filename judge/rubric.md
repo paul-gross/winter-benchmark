@@ -13,6 +13,10 @@ failed** — enforced in code, not by instruction.
 - The branch-cohesion figure computed deterministically in phase 5.
 - Relevant application documentation (the fixture README).
 - The executable-check results (ids + pass/fail + detail).
+- The deterministic runtime-evidence signals (app launched, DB/broker figures
+  from the agent's own runtime, verification-report presence/coverage) —
+  informative input to `requirement_completeness`, never a gate, and
+  condition-neutral by construction.
 
 Condition and run identity are stripped and replaced with a random blind id.
 The judge is never told whether Winter or `winter-workflow` was present, the

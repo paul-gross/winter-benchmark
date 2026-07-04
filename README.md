@@ -18,17 +18,19 @@ else implements it.
 | Prompts | [prompts/](./prompts/) | The five fixed task prompts + comparative-run variants |
 | Graders | [graders/](./graders/) | Hidden deterministic checks: Playwright suite, evidence capture, delivery gate |
 | Judge | [judge/](./judge/) | Blinded qualitative review + result-class assignment |
-| Runner | [runner/](./runner/) | `bench run` — reset → launch → capture → grade → emit, with pluggable agent hosts |
+| Runner | [runner/](./runner/) | `bench.py run` — reset → launch → capture → grade → emit, with pluggable agent hosts |
+| Pilot runbook | [pilot.md](./pilot.md) | The 30-cell validation pilot: sequence, pacing, checklist, reporting |
 | Results | `results/<version>/` | Per-run records, diffs, anonymized packages, reports |
 
 ## Quick start
 
 ```sh
 # Derive the polyrepo fixture from the pinned mono commit
-uv run bench/derive-poly/derive_poly.py --out /tmp/poly-fixtures
+python3 bench/derive-poly/derive_poly.py \
+  --source projects/winter-test-service --out /tmp/poly-fixtures
 
 # Run a single cell (see runner/README.md for the sandbox prerequisites)
-uv run bench/runner/bench.py run \
+python3 bench/runner/bench.py run \
   --topology mono --condition plain --prompt t1-delete-item \
   --model haiku --host claude
 ```

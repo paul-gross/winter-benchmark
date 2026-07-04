@@ -194,10 +194,14 @@ def bootstrap_winter(ws: Path) -> None:
     infra singletons up, per-env db/vhost provisioned. App services stay down —
     starting them is the agent's job."""
     if shutil.which("winter") is None:
-        raise SystemExit(
-            "`winter` is not installed — run "
-            f"{ws}/tools/winter-cli/install.sh first (requires mise + uv)"
-        )
+        # Sandbox path: install the CLI from the workspace's own pinned source.
+        installer = ws / "tools" / "winter-cli" / "install.sh"
+        print(f"  bootstrap: installing winter via {installer}", file=sys.stderr)
+        if subprocess.run(["bash", str(installer)], cwd=ws).returncode != 0 or shutil.which("winter") is None:
+            raise SystemExit(
+                "`winter` is not installed and self-install failed — run "
+                f"{installer} manually (requires mise + uv)"
+            )
     if shutil.which("mise"):
         run(["mise", "trust", "--quiet", str(ws / "tools" / "winter-cli")], check=False)
     for step in (
