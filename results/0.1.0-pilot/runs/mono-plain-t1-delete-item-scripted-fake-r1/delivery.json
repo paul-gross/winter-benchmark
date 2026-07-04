@@ -1,0 +1,20 @@
+{
+  "committed": true,
+  "branch_cohesion": 1.0,
+  "diff_non_empty": true,
+  "repos": [
+    {
+      "repo": "winter-test-service",
+      "touched": true,
+      "branch": "feature/delete-item",
+      "default_branch": "master",
+      "commits": [
+        {
+          "sha": "0318f28de8c507ee102e6f90e57c1492f7cc4cca",
+          "message": "feat(items): support deleting items via API and web UI\n\nAdd delete_item through the write repository seam, expose\nDELETE /api/items/{id} (204, 404 on missing), and offer a per-row\nDelete control in the items table that refreshes the list in place."
+        }
+      ],
+      "diff_stat": "5 files changed, 50 insertions(+)"
+    }
+  ]
+}

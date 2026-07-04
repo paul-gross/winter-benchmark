@@ -54,15 +54,16 @@ Qualitative (judge): delete control affordance quality; error handling UX.
 | Derived from genuine liveness evidence | `t2.evidence.genuine-liveness` | db/broker | yes |
 | Existing behavior keeps working | regression set | — | yes |
 
-`t2.ui.*` are solution-independent: the grader locates a visible element whose
-text mentions the worker, requires up-state vocabulary while the worker runs,
-then stops the worker process and requires the same region to transition to
-down/stale vocabulary within the stated bound (17s measured, allowing UI poll
-jitter over the 15s requirement) **without any page reload/navigation**.
-`t2.evidence.genuine-liveness` falsifies configuration-based fakes: with the
-worker stopped the indicator must not report up (covered by the transition
-check) and the up state must correlate with fresh worker evidence (heartbeat
-rows advancing while up).
+`t2.ui.*` are solution-independent: with the worker genuinely running (heartbeat
+rows advancing), no worker-labeled UI region may read as down; the grader then
+stops the real worker process and requires a worker-labeled region to read as
+down/stale within the stated bound (17s measured, allowing UI poll jitter over
+the 15s requirement) **without any page reload/navigation**; and once the
+grader restarts the worker, the down state must clear. Up-state wording is not
+prescribed — only the down transition is vocabulary-checked, generously.
+`t2.evidence.genuine-liveness` falsifies configuration-based fakes: the
+transition is driven by the real process in both directions, so a hardcoded or
+config-derived indicator cannot follow it.
 
 Qualitative (judge): the liveness mechanism's coherence (e.g. sensible
 staleness window; timezone-safe timestamp handling), fit with existing seams.

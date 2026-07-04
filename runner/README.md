@@ -67,8 +67,13 @@ its own docker daemon (the cell's Postgres/RabbitMQ and anything the agent
 starts live inside), the bench tree and pinned sources mounted read-only, the
 results directory as the only writable host mount, and the host credential
 directory mounted read-only (held constant across cells). Destroyed after
-capture. **Status: implemented, not yet validated end to end — build the image
-and verify one cell before the pilot** (tracked in the pilot checklist).
+capture. **Status: validated 2026-07-03** — a full fake-host cell ran inside
+the sandbox end to end (reset → agent → capture → grade → blinded judge via the
+mounted credential → `fully_achieved_unattended`). Two requirements baked in
+from that validation: `--sources-dir` must contain real clones (git worktrees
+are rejected — their `.git` files point outside the mount), and the inner
+docker daemon gets an anonymous volume at `/var/lib/docker` because
+overlay-on-overlay cannot extract image whiteouts.
 
 `--sandbox none` runs on the host for harness development only. It performs
 best-effort cleanup (winter service teardown, fixture containers, processes in

@@ -273,11 +273,16 @@ class Stack:
     def stop_worker(self) -> None:
         proc = self.procs.get("worker")
         if proc and proc.poll() is None:
-            proc.terminate()
+            # Kill the whole group: `uv run` wraps the real python worker in a
+            # child process that must die too, or heartbeats keep flowing.
             try:
+                os.killpg(os.getpgid(proc.pid), 15)
                 proc.wait(10)
-            except subprocess.TimeoutExpired:
-                proc.kill()
+            except (ProcessLookupError, subprocess.TimeoutExpired):
+                try:
+                    os.killpg(os.getpgid(proc.pid), 9)
+                except ProcessLookupError:
+                    pass
 
     def start_web(self) -> None:
         self.spawn("web", ["npm", "run", "dev"], self.path("web"))
@@ -461,7 +466,10 @@ def check_structural_t4(stack: Stack, checks: dict[str, Check], renamed: bool) -
     cmd = ["uv", "run", "python", str((HERE / "structural" / "structural_t4.py").resolve())]
     if renamed:
         cmd += ["--renamed-field", "title"]
-    result = sh(cmd, cwd=cwd, timeout=120)
+    # PYTHONPATH=.: the probe script lives outside the submission, so the
+    # submission's own packages must come from cwd (mono; harmless in poly,
+    # where the lib repo installs itself into its venv).
+    result = sh(cmd, cwd=cwd, env={"PYTHONPATH": "."}, timeout=120)
     if result.returncode != 0:
         for c in checks.values():
             c.record(False, f"structural probe failed: {result.stderr[-500:]}")

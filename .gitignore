@@ -1,3 +1,6 @@
 __pycache__/
 *.pyc
-results/
+
+# Raw transcripts are retained on disk for diagnosis but not versioned;
+# per-cell results, artifacts, and anonymized outcomes are committed.
+results/*/runs/*/transcript.jsonl

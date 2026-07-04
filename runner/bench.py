@@ -332,12 +332,24 @@ def run_in_sandbox(args: argparse.Namespace, run_id: str, run_dir: Path) -> Path
         log(f"building sandbox image {image}")
         sh(["docker", "build", "-t", image, str(HERE / "sandbox")], timeout=1800, check=True)
     workspace_src = args.sources_dir.resolve()
+    # Worktree checkouts have a `.git` FILE pointing outside the mount; the
+    # sandbox needs self-contained clones (e.g. the workspace's projects/ dir).
+    for child in workspace_src.iterdir():
+        if (child / ".git").is_file():
+            raise SystemExit(
+                f"--sources-dir {workspace_src} contains git worktrees ({child.name}); "
+                "the docker sandbox needs real clones — pass the workspace's "
+                "projects/ directory instead"
+            )
     creds = Path.home() / ".claude"
     version = (BENCH / "VERSION").read_text().strip()
     results_root = (args.results_root or BENCH / "results" / version).resolve()
     cmd = [
         "docker", "run", "--rm", "--privileged",
         "--name", f"bench-{run_id}",
+        # Anonymous volume: the inner docker daemon needs a real filesystem
+        # (overlay-on-overlay cannot extract whiteouts); removed with --rm.
+        "-v", "/var/lib/docker",
         "-v", f"{BENCH.resolve()}:/bench-src:ro",   # harness code: read-only
         "-v", f"{workspace_src}:/sources:ro",       # pinned sources: read-only
         "-v", f"{results_root}:/results",           # the only writable host mount
@@ -350,15 +362,20 @@ def run_in_sandbox(args: argparse.Namespace, run_id: str, run_dir: Path) -> Path
         image,
         "bash", "-lc",
         " && ".join([
-            "dockerd &>/var/log/dockerd.log & timeout 60 sh -c 'until docker info &>/dev/null; do sleep 1; done'",
+            "dockerd >/var/log/dockerd.log 2>&1 & timeout 90 sh -c 'until docker info >/dev/null 2>&1; do sleep 1; done'",
+            "git config --global --add safe.directory '*'",  # host mounts owned by another uid
+            "git config --global user.name bench && git config --global user.email bench@bench.invalid",
             "mkdir -p /work && cp -r /bench-src /work/bench",  # graders need a writable tree
             " ".join([
                 "python3 /work/bench/runner/bench.py run",
                 f"--topology {args.topology} --condition {args.condition}",
                 f"--prompt {args.prompt} --model {args.model} --host {args.host}",
                 f"--repetition {args.repetition}",
+                f"--max-run-minutes {args.max_run_minutes}",
                 "--sandbox none --sources-dir /sources",
                 "--results-root /results --work-root /work/cell-root --force",
+                *(["--skip-judge"] if args.skip_judge else []),
+                *(["--keep-cell"] if args.keep_cell else []),
             ]),
         ]),
     ]

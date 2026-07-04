@@ -38,20 +38,28 @@ export function trackNavigations(page: Page): { count: () => number } {
   return { count: () => navs }
 }
 
-export const UP_VOCAB = /\b(up|healthy|alive|running|active|ok|online|live)\b/i
 export const DOWN_VOCAB =
   /\b(down|stale|stopped|dead|unhealthy|offline|inactive|unavailable|lost|not running|no recent|missing)\b/i
 
 /**
- * The innermost visible element(s) mentioning the worker, joined as one text
- * region. Solution-independent: any UI that "shows a worker status indicator"
- * must render worker-labeled text somewhere.
+ * The text region around every element mentioning the worker. Pieces are
+ * joined with explicit spaces (innerText concatenates adjacent inline
+ * elements without separators — "Worker down" + "status" must not fuse into
+ * "downstatus"). Solution-independent: any UI that "shows a worker status
+ * indicator" must render worker-labeled text somewhere.
  */
 export async function workerRegionText(page: Page): Promise<string> {
-  const texts = await page
-    .getByText(/worker/i)
-    .evaluateAll(els =>
-      els.map(el => (el.parentElement ? el.parentElement.innerText : (el as HTMLElement).innerText)),
-    )
+  const texts = await page.getByText(/worker/i).evaluateAll(els =>
+    els.map(el => {
+      const own = (el as HTMLElement).innerText ?? el.textContent ?? ''
+      const parent = el.parentElement
+      const siblings = parent
+        ? Array.from(parent.children)
+            .map(c => (c as HTMLElement).innerText ?? c.textContent ?? '')
+            .join(' ')
+        : ''
+      return `${own} ${siblings}`
+    }),
+  )
   return texts.join(' | ')
 }

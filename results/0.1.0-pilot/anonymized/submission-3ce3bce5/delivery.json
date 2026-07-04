@@ -1,0 +1,12 @@
+{
+  "branch_cohesion": 1.0,
+  "repos": [
+    {
+      "repo": "winter-test-service",
+      "branch": "feature/delete-item",
+      "commit_messages": [
+        "feat(winter-test-service): add item deletion capability\n\n- Expose DELETE /api/items/{id} endpoint returning 204 on success, 404 if not found\n- Implement delete_item in repository layer following existing patterns\n- Add delete button to web UI with immediate list update (no page reload)\n- Maintain existing item operations and layering\n\nCo-Authored-By: Claude Haiku 4.5 <noreply@anthropic.com>"
+      ]
+    }
+  ]
+}

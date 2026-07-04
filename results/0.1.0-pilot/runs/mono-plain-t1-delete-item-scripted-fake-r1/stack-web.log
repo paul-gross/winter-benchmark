@@ -1,0 +1,11 @@
+
+> winter-test-service-web@0.0.1 dev
+> vite
+
+
+  VITE v6.4.3  ready in 109 ms
+
+  ➜  Local:   http://localhost:49023/
+  ➜  Network: http://192.168.68.77:49023/
+  ➜  Network: http://172.17.0.1:49023/
+  ➜  Network: http://172.19.0.1:49023/
