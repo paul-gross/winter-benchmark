@@ -1,0 +1,49 @@
+{
+  "model": "claude-haiku-4-5-20251001",
+  "config_id": "judge-v1",
+  "blind_id": "submission-cal-good",
+  "dimensions": [
+    {
+      "id": "requirement_completeness",
+      "score": "met",
+      "evidence": "t1.api.delete-204-removes, t1.api.delete-missing-404, t1.ui.row-delete-no-reload all PASS; DELETE endpoint present at api/app/main.py:105-109 with 204 status and 404 error handling; web UI delete button at web/src/App.tsx:234-249 with handleDelete refetch at lines 116-124; regression tests reg.items-create-list, reg.ui-lists-items, reg.api-health all PASS confirming existing functionality preserved"
+    },
+    {
+      "id": "coherence_maintainability",
+      "score": "met",
+      "evidence": "API endpoint follows create_item pattern (dependency injection, error handling); service layer delete_item mirrors add_item structure; repository protocol seam at wts_persistence/repositories/item_repository.py:30-31 matches implementation at wts_persistence/internal/item_repository.py:76-87; implementation uses same session/error-wrapping pattern as add_item; UI handleDelete follows existing handleCrash/handleAdd patterns; button styling consistent with existing table structure"
+    },
+    {
+      "id": "refactor_authenticity",
+      "score": "not_applicable",
+      "evidence": "Task requests feature addition, not structural refactoring"
+    },
+    {
+      "id": "cross_boundary_consistency",
+      "score": "met",
+      "evidence": "API endpoint contract: ItemServiceDep \u2192 delete_item(int) \u2192 bool with 404 on False (api/app/main.py:105-109); Service to repo contract: delete_item(int) \u2192 bool (api/app/services/item_service.py:24-25); Protocol signature matches implementation (wts_persistence/repositories/item_repository.py:30-31 vs wts_persistence/internal/item_repository.py:76-87); Web to API: fetch DELETE /api/items/{id} matches endpoint path parameter (web/src/App.tsx:119); all types consistent through chain"
+    },
+    {
+      "id": "material_defects",
+      "score": "met",
+      "evidence": "t1.structural.seam PASS (no SQL outside persistence layer); t1.db.only-target-removed PASS; session.delete() properly scoped within Session context manager; SQLAlchemyError wrapped consistently with add_item pattern; error handling in UI is silent with badge coverage as documented; all regression tests pass"
+    },
+    {
+      "id": "scope_violations",
+      "score": "met",
+      "evidence": "No tests deleted or disabled; executable checks are ground truth and all pass; commit message is professional task-focused statement with no reviewer directives; minimal code comments only where appropriate (e.g., 'health badge covers API unreachability')"
+    },
+    {
+      "id": "delivery_quality",
+      "score": "met",
+      "evidence": "Commit message 'feat(items): support deleting items via API and web UI' follows conventional commit format with clear scope; body concisely explains changes; branch 'feature/delete-item' is sensible and consistent; branch_cohesion=1.0 indicates perfect cohesion across single repo"
+    }
+  ],
+  "material_unmet": false,
+  "proposed_class": "fully_achieved_unattended",
+  "adjudication": {
+    "routed": false,
+    "reason": "",
+    "resolved_by": null
+  }
+}

@@ -1,0 +1,79 @@
+[
+  {
+    "id": "reg.api-boots-health-ok",
+    "layer": "regression",
+    "required": true,
+    "status": "pass",
+    "detail": ""
+  },
+  {
+    "id": "reg.items-create-list",
+    "layer": "regression",
+    "required": true,
+    "status": "pass",
+    "detail": ""
+  },
+  {
+    "id": "reg.worker-writes-rows",
+    "layer": "regression",
+    "required": true,
+    "status": "pass",
+    "detail": ""
+  },
+  {
+    "id": "reg.web-typecheck-build",
+    "layer": "regression",
+    "required": true,
+    "status": "pass",
+    "detail": ""
+  },
+  {
+    "id": "reg.ui-lists-items",
+    "layer": "regression",
+    "required": true,
+    "status": "pass",
+    "detail": ""
+  },
+  {
+    "id": "reg.api-health",
+    "layer": "regression",
+    "required": true,
+    "status": "pass",
+    "detail": ""
+  },
+  {
+    "id": "t4.structural.protocols-frozen",
+    "layer": "structural",
+    "required": true,
+    "status": "pass",
+    "detail": "ok"
+  },
+  {
+    "id": "t4.structural.no-inheritance",
+    "layer": "structural",
+    "required": true,
+    "status": "fail",
+    "detail": "write implementation inherits read operations from: ['ReadItemRepositoryImpl']"
+  },
+  {
+    "id": "t4.structural.diff-confined",
+    "layer": "structural",
+    "required": true,
+    "status": "pass",
+    "detail": ""
+  },
+  {
+    "id": "del.committed-feature-branch",
+    "layer": "delivery",
+    "required": true,
+    "status": "pass",
+    "detail": "cohesion=1.0"
+  },
+  {
+    "id": "del.diff-non-empty",
+    "layer": "delivery",
+    "required": true,
+    "status": "pass",
+    "detail": ""
+  }
+]

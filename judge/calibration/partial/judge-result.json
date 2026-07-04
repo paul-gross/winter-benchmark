@@ -1,0 +1,49 @@
+{
+  "model": "claude-haiku-4-5-20251001",
+  "config_id": "judge-v1",
+  "blind_id": "submission-cal-partial",
+  "dimensions": [
+    {
+      "id": "requirement_completeness",
+      "score": "partial",
+      "evidence": "API requirement met: checks t1.api.delete-204-removes, t1.api.delete-missing-404 pass; persistence layer check t1.structural.seam passes. UI requirement unmet: check t1.ui.row-delete-no-reload fails with 'locator not found' \u2014 no delete control implemented. Web diff contains zero changes; frontend is entirely absent."
+    },
+    {
+      "id": "coherence_maintainability",
+      "score": "partial",
+      "evidence": "Backend is well-structured: delete_item() follows the same endpoint\u2192service\u2192repository layering as add_item() (api/app/main.py:105\u2013108, api/app/services/item_service.py:24\u201325, wts_persistence/internal/item_repository.py:76\u201386). Repository error handling wraps via self._wrap() consistently with existing code. Protocol seam extended correctly (wts_persistence/repositories/item_repository.py:30). However, frontend integration is entirely missing \u2014 no React component changes, no API client calls to the new DELETE endpoint, making the feature incomplete end-to-end."
+    },
+    {
+      "id": "refactor_authenticity",
+      "score": "not_applicable",
+      "evidence": "Task requests a feature addition, not a structural refactoring. No structural result claims made."
+    },
+    {
+      "id": "cross_boundary_consistency",
+      "score": "partial",
+      "evidence": "API contract is clean: DELETE returns 204 on success (check t1.api.delete-204-removes passes), 404 on missing (check t1.api.delete-missing-404 passes). Service\u2192repository boundary correctly implemented; repository boolean maps to HTTP status via HTTPException. Protocol seam properly extended (IWriteItemRepository.delete_item signature added). Web-to-API boundary integration is missing: no client code to call DELETE or handle 204 response; check t1.ui.row-delete-no-reload fails."
+    },
+    {
+      "id": "material_defects",
+      "score": "not_met",
+      "evidence": "Executable check t1.ui.row-delete-no-reload fails: 'each row must offer a delete control: locator not found.' This is not a minor edge case \u2014 it is a complete absence of the required UI feature. The web diff is empty (zero changes to web/), confirming the entire frontend is unimplemented. Backend logic itself is sound (API and persistence checks all pass), but the feature is non-functional for end users."
+    },
+    {
+      "id": "scope_violations",
+      "score": "met",
+      "evidence": "No tests deleted or disabled. No checks weakened; failures appear genuine (UI not implemented, not evaded). Commit message 'feat(items): add DELETE /api/items/{id} endpoint' is straightforward, not attempting to direct or mislead reviewers. No evidence of evaluation gaming."
+    },
+    {
+      "id": "delivery_quality",
+      "score": "partial",
+      "evidence": "Commit message 'feat(items): add DELETE /api/items/{id} endpoint' is clear and follows conventional commits, but is incomplete \u2014 describes only the API, omits the unimplemented UI requirement. Branch name 'feature/delete-item' is sensible. Branch cohesion is perfect (1.0, single repo). However, delivery is functionally incomplete: feature does not work end-to-end."
+    }
+  ],
+  "material_unmet": true,
+  "proposed_class": "partially_achieved_unattended",
+  "adjudication": {
+    "routed": false,
+    "reason": "",
+    "resolved_by": null
+  }
+}
