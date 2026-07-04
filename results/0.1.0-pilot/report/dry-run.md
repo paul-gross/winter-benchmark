@@ -40,6 +40,20 @@ of any kind is drawn from these runs.**
   including the blinded judge authenticating through the mounted credential —
   `fully_achieved_unattended`, result written to the mounted results store.
 
+## Runner condition/topology coverage
+
+| Cell (all t1, fake host unless noted) | Result |
+|--------------------------------------|--------|
+| mono / plain — fake, and real `claude --model haiku` | `fully_achieved_unattended` (both) |
+| mono / plain inside `--sandbox docker` | `fully_achieved_unattended` (incl. judge auth in-sandbox) |
+| mono / winter | `fully_achieved_unattended` — full workspace bootstrap in the runner's reset, agent commit in the alpha env, capture from the wtsb containers, clean teardown |
+| poly / plain | `fully_achieved_unattended` — cohesion 1.0 computed across exactly the three touched repos |
+| mono / winter with a crashing scripted agent | `human_intervention_required`, stall signal `crashed` — the mechanical intervention detection exercised for real |
+
+Not yet exercised through the runner (pilot work): poly/winter and the
+winter-workflow condition (same runner path as winter — differs only by the
+extension block), and real-agent winter/poly cells.
+
 ## Harness defects found and fixed during the dry-run
 
 | Defect | Fix |
@@ -48,6 +62,8 @@ of any kind is drawn from these runs.**
 | `innerText` fuses adjacent inline elements ("Worker down"+"status" → "downstatus"), defeating word-boundary vocabulary matching; up-state vocab could false-positive on the health badge's "ok" | space-joined region assembly; up state redefined as "not down while genuinely running", down transition vocabulary-checked both ways against the real process |
 | t4 structural probe couldn't import the submission package under `uv run` (script path replaces cwd on sys.path) | `PYTHONPATH=.` for the probe |
 | Sandbox: worktree sources break inside the mount; dubious-ownership refusals; `&>` bashism in the POSIX dockerd wait; overlay-on-overlay whiteout extraction | worktree guard + guidance; container-wide `safe.directory`; POSIX redirects; anonymous volume at `/var/lib/docker` |
+| Winter workspaces had no committer identity on the `ws init`-cloned project repos (commits failed with "Author identity unknown" — correctly surfacing as `human_intervention_required`/`crashed`, but for the wrong reason) | the builder now sets the same task-neutral identity on every project clone that the plain baselines get |
+| The fake host discarded script stderr, hiding the failure above | stderr and exit code recorded in the transcript |
 
 ## Observations for the pilot defect list
 

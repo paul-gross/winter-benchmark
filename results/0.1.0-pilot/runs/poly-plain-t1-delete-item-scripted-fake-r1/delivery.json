@@ -1,0 +1,62 @@
+{
+  "committed": true,
+  "branch_cohesion": 1.0,
+  "diff_non_empty": true,
+  "repos": [
+    {
+      "repo": "wts-api",
+      "touched": true,
+      "branch": "feature/delete-item",
+      "default_branch": "master",
+      "commits": [
+        {
+          "sha": "8808115a2911b1744577c3808b68a00a6c0f8c43",
+          "message": "feat(items): support deleting items via API and web UI\n\nExpose DELETE /api/items/{id} (204; 404 on a missing id) through the item service."
+        }
+      ],
+      "diff_stat": "2 files changed, 9 insertions(+)"
+    },
+    {
+      "repo": "wts-messaging",
+      "touched": false,
+      "branch": "master",
+      "default_branch": "master",
+      "commits": [],
+      "diff_stat": ""
+    },
+    {
+      "repo": "wts-persistence",
+      "touched": true,
+      "branch": "feature/delete-item",
+      "default_branch": "master",
+      "commits": [
+        {
+          "sha": "c7941e5bfefaad9e7d5b7bbf4962fda6dfea2238",
+          "message": "feat(items): support deleting items via API and web UI\n\nAdd delete_item to the write repository Protocol and the SQLAlchemy adapter."
+        }
+      ],
+      "diff_stat": "2 files changed, 14 insertions(+)"
+    },
+    {
+      "repo": "wts-web",
+      "touched": true,
+      "branch": "feature/delete-item",
+      "default_branch": "master",
+      "commits": [
+        {
+          "sha": "b4606326a0c4c2d79093900b2d655b43eebab016",
+          "message": "feat(items): support deleting items via API and web UI\n\nPer-row Delete control in the items table; the list refreshes in place."
+        }
+      ],
+      "diff_stat": "1 file changed, 27 insertions(+)"
+    },
+    {
+      "repo": "wts-worker",
+      "touched": false,
+      "branch": "master",
+      "default_branch": "master",
+      "commits": [],
+      "diff_stat": ""
+    }
+  ]
+}

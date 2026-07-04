@@ -1,0 +1,52 @@
+diff --git a/src/App.tsx b/src/App.tsx
+index 4ddfad3..9cffceb 100644
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -113,6 +113,15 @@ export default function App() {
+     }
+   }
+ 
++  async function handleDelete(id: number) {
++    try {
++      const res = await fetch(`/api/items/${id}`, { method: 'DELETE' })
++      if (res.ok) await fetchItems()
++    } catch {
++      // health badge covers API unreachability
++    }
++  }
++
+   async function handleCrash() {
+     if (!confirm('This will hard-crash the API process (os._exit). Proceed?')) return
+     setCrashPending(true)
+@@ -196,6 +205,7 @@ export default function App() {
+                 <th style={{ padding: '4px 8px' }}>Label</th>
+                 <th style={{ padding: '4px 8px' }}>Source</th>
+                 <th style={{ padding: '4px 8px' }}>Created at</th>
++                <th style={{ padding: '4px 8px' }}></th>
+               </tr>
+             </thead>
+             <tbody>
+@@ -221,6 +231,23 @@ export default function App() {
+                   <td style={{ padding: '4px 8px', color: '#6b7280' }}>
+                     {new Date(item.created_at).toLocaleString()}
+                   </td>
++                  <td style={{ padding: '4px 8px' }}>
++                    <button
++                      onClick={() => handleDelete(item.id)}
++                      aria-label={`Delete item ${item.id}`}
++                      style={{
++                        padding: '2px 10px',
++                        background: '#ef4444',
++                        color: '#fff',
++                        border: 'none',
++                        borderRadius: 4,
++                        cursor: 'pointer',
++                        fontSize: '0.75rem',
++                      }}
++                    >
++                      Delete
++                    </button>
++                  </td>
+                 </tr>
+               ))}
+             </tbody>

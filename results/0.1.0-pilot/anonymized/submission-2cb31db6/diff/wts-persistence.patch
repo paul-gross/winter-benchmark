@@ -1,0 +1,33 @@
+diff --git a/wts_persistence/internal/item_repository.py b/wts_persistence/internal/item_repository.py
+index 40bbd39..1e09f63 100644
+--- a/wts_persistence/internal/item_repository.py
++++ b/wts_persistence/internal/item_repository.py
+@@ -73,6 +73,18 @@ class WriteItemRepository(ReadItemRepository):
+         except SQLAlchemyError as exc:
+             raise self._wrap(exc, "failed to add item")
+ 
++    def delete_item(self, item_id: int) -> bool:
++        try:
++            with Session(self._engine) as session:
++                entity = session.get(ItemEntity, item_id)
++                if entity is None:
++                    return False
++                session.delete(entity)
++                session.commit()
++                return True
++        except SQLAlchemyError as exc:
++            raise self._wrap(exc, "failed to delete item")
++
+ 
+ def _to_domain(entity: ItemEntity) -> Item:
+     """Map an ORM row to the domain object — entities never escape this package."""
+diff --git a/wts_persistence/repositories/item_repository.py b/wts_persistence/repositories/item_repository.py
+index d2a2513..9228401 100644
+--- a/wts_persistence/repositories/item_repository.py
++++ b/wts_persistence/repositories/item_repository.py
+@@ -27,3 +27,5 @@ class IWriteItemRepository(IReadItemRepository, Protocol):
+     def init_schema(self) -> None: ...
+ 
+     def add_item(self, label: str, source: ItemSource) -> Item: ...
++
++    def delete_item(self, item_id: int) -> bool: ...

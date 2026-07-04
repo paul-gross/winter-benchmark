@@ -1,0 +1,12 @@
+{
+  "branch_cohesion": 1.0,
+  "repos": [
+    {
+      "repo": "winter-test-service",
+      "branch": "alpha",
+      "commit_messages": [
+        "feat(items): support deleting items via API and web UI\n\nAdd delete_item through the write repository seam, expose\nDELETE /api/items/{id} (204, 404 on missing), and offer a per-row\nDelete control in the items table that refreshes the list in place."
+      ]
+    }
+  ]
+}

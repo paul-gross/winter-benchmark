@@ -1,0 +1,68 @@
+warning: `VIRTUAL_ENV=/home/pgross/projects/winter-workspace/alpha/winter/bench/graders/.venv` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+INFO:     Started server process [971415]
+INFO:     Waiting for application startup.
+2026-07-03T20:11:59 INFO     api: DB schema initialised
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:51079 (Press CTRL+C to quit)
+2026-07-03T20:11:59 INFO     api: GET /api/health → 200
+INFO:     127.0.0.1:52626 - "GET /api/health HTTP/1.1" 200 OK
+2026-07-03T20:12:03 INFO     api: POST /api/items → 201
+INFO:     127.0.0.1:41402 - "POST /api/items HTTP/1.1" 201 Created
+2026-07-03T20:12:03 INFO     api: GET /api/items → 200
+INFO:     127.0.0.1:41402 - "GET /api/items HTTP/1.1" 200 OK
+2026-07-03T20:12:04 INFO     api: POST /api/items → 201
+INFO:     127.0.0.1:41402 - "POST /api/items HTTP/1.1" 201 Created
+2026-07-03T20:12:04 INFO     api: GET /api/items → 200
+INFO:     127.0.0.1:41402 - "GET /api/items HTTP/1.1" 200 OK
+2026-07-03T20:12:04 INFO     api: GET /api/health → 200
+INFO:     127.0.0.1:41416 - "GET /api/health HTTP/1.1" 200 OK
+2026-07-03T20:12:04 INFO     api: GET /api/health → 200
+INFO:     127.0.0.1:41444 - "GET /api/health HTTP/1.1" 200 OK
+2026-07-03T20:12:04 INFO     api: GET /api/items → 200
+INFO:     127.0.0.1:41432 - "GET /api/items HTTP/1.1" 200 OK
+2026-07-03T20:12:04 INFO     api: GET /api/items → 200
+INFO:     127.0.0.1:41452 - "GET /api/items HTTP/1.1" 200 OK
+2026-07-03T20:12:04 INFO     api: GET /api/health → 200
+INFO:     127.0.0.1:41402 - "GET /api/health HTTP/1.1" 200 OK
+2026-07-03T20:12:04 INFO     api: POST /api/items → 201
+INFO:     127.0.0.1:41402 - "POST /api/items HTTP/1.1" 201 Created
+2026-07-03T20:12:04 INFO     api: DELETE /api/items/6 → 204
+INFO:     127.0.0.1:41402 - "DELETE /api/items/6 HTTP/1.1" 204 No Content
+2026-07-03T20:12:04 INFO     api: GET /api/items → 200
+INFO:     127.0.0.1:41402 - "GET /api/items HTTP/1.1" 200 OK
+2026-07-03T20:12:04 INFO     api: DELETE /api/items/999999999 → 404
+INFO:     127.0.0.1:41402 - "DELETE /api/items/999999999 HTTP/1.1" 404 Not Found
+2026-07-03T20:12:04 INFO     api: POST /api/items → 201
+INFO:     127.0.0.1:41402 - "POST /api/items HTTP/1.1" 201 Created
+2026-07-03T20:12:04 INFO     api: DELETE /api/items/7 → 204
+INFO:     127.0.0.1:41402 - "DELETE /api/items/7 HTTP/1.1" 204 No Content
+2026-07-03T20:12:04 INFO     api: DELETE /api/items/7 → 404
+INFO:     127.0.0.1:41402 - "DELETE /api/items/7 HTTP/1.1" 404 Not Found
+2026-07-03T20:12:04 INFO     api: POST /api/items → 201
+INFO:     127.0.0.1:41402 - "POST /api/items HTTP/1.1" 201 Created
+2026-07-03T20:12:04 INFO     api: POST /api/items → 201
+INFO:     127.0.0.1:41402 - "POST /api/items HTTP/1.1" 201 Created
+2026-07-03T20:12:05 INFO     api: DELETE /api/items/9 → 204
+INFO:     127.0.0.1:41402 - "DELETE /api/items/9 HTTP/1.1" 204 No Content
+2026-07-03T20:12:05 INFO     api: GET /api/items → 200
+INFO:     127.0.0.1:41402 - "GET /api/items HTTP/1.1" 200 OK
+2026-07-03T20:12:05 INFO     api: POST /api/items → 201
+INFO:     127.0.0.1:41402 - "POST /api/items HTTP/1.1" 201 Created
+2026-07-03T20:12:05 INFO     api: GET /api/health → 200
+INFO:     127.0.0.1:41466 - "GET /api/health HTTP/1.1" 200 OK
+2026-07-03T20:12:05 INFO     api: GET /api/items → 200
+INFO:     127.0.0.1:41472 - "GET /api/items HTTP/1.1" 200 OK
+2026-07-03T20:12:05 INFO     api: GET /api/health → 200
+INFO:     127.0.0.1:41486 - "GET /api/health HTTP/1.1" 200 OK
+2026-07-03T20:12:05 INFO     api: GET /api/items → 200
+INFO:     127.0.0.1:41498 - "GET /api/items HTTP/1.1" 200 OK
+2026-07-03T20:12:05 INFO     api: DELETE /api/items/10 → 204
+INFO:     127.0.0.1:41506 - "DELETE /api/items/10 HTTP/1.1" 204 No Content
+2026-07-03T20:12:05 INFO     api: GET /api/items → 200
+INFO:     127.0.0.1:41522 - "GET /api/items HTTP/1.1" 200 OK
+2026-07-03T20:12:05 INFO     api: GET /api/items → 200
+INFO:     127.0.0.1:41402 - "GET /api/items HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [971415]

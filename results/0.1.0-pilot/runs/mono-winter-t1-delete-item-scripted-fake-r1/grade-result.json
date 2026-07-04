@@ -1,0 +1,118 @@
+{
+  "prompt": "t1-delete-item",
+  "topology": "mono",
+  "checks": [
+    {
+      "id": "reg.api-boots-health-ok",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "reg.worker-writes-rows",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "reg.web-typecheck-build",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": "\n> winter-test-service-web@0.0.1 build\n> tsc && vite build\n\nvite v6.4.3 building for production...\ntransforming...\n\u2713 29 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                   0.40 kB \u2502 gzip:  0.27 kB\ndist/assets/index-DzA66tKi.css    0.11 kB \u2502 gzip:  0.12 kB\ndist/assets/index-BNrsw8qz.js   200.15 kB \u2502 gzip: 62.76 kB\n\u2713 built in 1.06s\n"
+    },
+    {
+      "id": "del.committed-feature-branch",
+      "layer": "delivery",
+      "required": true,
+      "status": "pass",
+      "detail": "cohesion=1.0"
+    },
+    {
+      "id": "del.diff-non-empty",
+      "layer": "delivery",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "reg.items-create-list",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "reg.ui-lists-items",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "reg.api-health",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "t1.api.delete-204-removes",
+      "layer": "api",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "t1.api.delete-missing-404",
+      "layer": "api",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "t1.db.only-target-removed",
+      "layer": "db",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "t1.ui.row-delete-no-reload",
+      "layer": "ui",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "t1.structural.seam",
+      "layer": "structural",
+      "required": true,
+      "status": "pass",
+      "detail": "no SQL added outside the persistence layer"
+    }
+  ],
+  "delivery": {
+    "committed": true,
+    "branch_cohesion": 1.0,
+    "diff_non_empty": true,
+    "repos": [
+      {
+        "repo": "winter-test-service",
+        "touched": true,
+        "branch": "alpha",
+        "default_branch": "master",
+        "commits": [
+          {
+            "sha": "c83265a9e628b62292dc5e6e336077e3a75c5c9e",
+            "message": "feat(items): support deleting items via API and web UI\n\nAdd delete_item through the write repository seam, expose\nDELETE /api/items/{id} (204, 404 on missing), and offer a per-row\nDelete control in the items table that refreshes the list in place."
+          }
+        ],
+        "diff_stat": "5 files changed, 50 insertions(+)"
+      }
+    ]
+  },
+  "required_failed": []
+}

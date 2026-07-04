@@ -43,7 +43,9 @@ class FakeHost(HostAdapter):
             exit_code = result.returncode
             final_message = result.stdout.strip() or final_message
             events.append({"type": "tool_use", "command": f"bash {script}"})
-            events.append({"type": "result", "result": final_message})
+            if result.stderr:
+                events.append({"type": "stderr", "text": result.stderr[-4000:]})
+            events.append({"type": "result", "result": final_message, "exit_code": exit_code})
             if exit_code != 0:
                 stall = "crashed"
         transcript.write_text("\n".join(json.dumps(e) for e in events) + "\n")

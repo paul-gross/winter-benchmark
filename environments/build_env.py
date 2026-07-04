@@ -214,6 +214,14 @@ def bootstrap_winter(ws: Path) -> None:
         result = subprocess.run(step, cwd=ws)
         if result.returncode != 0:
             raise SystemExit(f"bootstrap step failed: {' '.join(step)}")
+    # Same task-neutral committer identity as the plain baselines. Repo config
+    # is shared across a repo's worktrees, so setting it on each project clone
+    # covers the feature-env worktrees too.
+    projects = ws / "projects"
+    if projects.exists():
+        for repo in projects.iterdir():
+            if (repo / ".git").exists():
+                set_identity(repo)
 
 
 def main() -> None:

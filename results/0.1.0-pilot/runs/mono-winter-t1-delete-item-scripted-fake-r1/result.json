@@ -1,0 +1,215 @@
+{
+  "schema_version": 1,
+  "benchmark_version": "0.1.0-pilot",
+  "run_id": "mono-winter-t1-delete-item-scripted-fake-r1",
+  "created_at": "2026-07-04T01:11:17.182107+00:00",
+  "cell": {
+    "topology": "mono",
+    "condition": "winter",
+    "prompt": "t1-delete-item",
+    "model": "scripted",
+    "host": "fake",
+    "host_version": "fake-1",
+    "repetition": 1
+  },
+  "pins": {
+    "mono_sha": "e7249413eee9b9c6e6cb5ce90cf5280dfc57e20d"
+  },
+  "result_class": "fully_achieved_unattended",
+  "intervention": {
+    "engineering_intervention": false,
+    "events": []
+  },
+  "stall": {
+    "detected": false,
+    "signal": "none"
+  },
+  "checks": [
+    {
+      "id": "reg.api-boots-health-ok",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "reg.worker-writes-rows",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "reg.web-typecheck-build",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": "\n> winter-test-service-web@0.0.1 build\n> tsc && vite build\n\nvite v6.4.3 building for production...\ntransforming...\n\u2713 29 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                   0.40 kB \u2502 gzip:  0.27 kB\ndist/assets/index-DzA66tKi.css    0.11 kB \u2502 gzip:  0.12 kB\ndist/assets/index-BNrsw8qz.js   200.15 kB \u2502 gzip: 62.76 kB\n\u2713 built in 1.06s\n"
+    },
+    {
+      "id": "del.committed-feature-branch",
+      "layer": "delivery",
+      "required": true,
+      "status": "pass",
+      "detail": "cohesion=1.0"
+    },
+    {
+      "id": "del.diff-non-empty",
+      "layer": "delivery",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "reg.items-create-list",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "reg.ui-lists-items",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "reg.api-health",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "t1.api.delete-204-removes",
+      "layer": "api",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "t1.api.delete-missing-404",
+      "layer": "api",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "t1.db.only-target-removed",
+      "layer": "db",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "t1.ui.row-delete-no-reload",
+      "layer": "ui",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "t1.structural.seam",
+      "layer": "structural",
+      "required": true,
+      "status": "pass",
+      "detail": "no SQL added outside the persistence layer"
+    }
+  ],
+  "evidence": {
+    "app_launched": true,
+    "db_user_rows": 0,
+    "db_worker_rows": 0,
+    "broker_deliveries": 0,
+    "capability_matrix_present": true,
+    "capability_matrix_coverage": 1.0
+  },
+  "delivery": {
+    "committed": true,
+    "branch_cohesion": 1.0,
+    "repos": [
+      {
+        "repo": "winter-test-service",
+        "touched": true,
+        "branch": "alpha",
+        "default_branch": "master",
+        "commits": [
+          {
+            "sha": "c83265a9e628b62292dc5e6e336077e3a75c5c9e",
+            "message": "feat(items): support deleting items via API and web UI\n\nAdd delete_item through the write repository seam, expose\nDELETE /api/items/{id} (204, 404 on missing), and offer a per-row\nDelete control in the items table that refreshes the list in place."
+          }
+        ],
+        "diff_stat": "5 files changed, 50 insertions(+)"
+      }
+    ]
+  },
+  "judge": {
+    "model": "claude-haiku-4-5-20251001",
+    "config_id": "judge-v1",
+    "blind_id": "submission-c0a8e17e",
+    "dimensions": [
+      {
+        "id": "requirement_completeness",
+        "score": "met",
+        "evidence": "All 5 requirements have corresponding passing executable checks: t1.api.delete-204-removes, t1.api.delete-missing-404, t1.structural.seam (no SQL outside persistence layer), t1.ui.row-delete-no-reload, and all regression checks (reg.items-create-list, reg.api-health, reg.ui-lists-items) confirm existing behavior. Capability matrix coverage=1.0 indicates complete verification report provided."
+      },
+      {
+        "id": "coherence_maintainability",
+        "score": "met",
+        "evidence": "API layer (main.py:105-108) follows existing create_item pattern: dependency-injected service with exception raising. Service layer (item_service.py:24-25) delegates to repository matching add_item style. Persistence layer (item_repository.py:76-86) uses identical Session/SQLAlchemyError-wrapping as add_item. Web component (App.tsx:116-124) reuses fetchItems() and error-handling pattern from handleCreate. Table structure maintains existing styling and column alignment."
+      },
+      {
+        "id": "refactor_authenticity",
+        "score": "not_applicable",
+        "evidence": "Task requests new functionality (delete capability), not a structural refactor. No existing code reorganization required."
+      },
+      {
+        "id": "cross_boundary_consistency",
+        "score": "met",
+        "evidence": "API endpoint (main.py:105-108) correctly interprets service.delete_item() boolean return: False \u2192 404, success \u2192 204. Web component (App.tsx:235-249) calls DELETE /api/items/{id}, checks res.ok, refreshes list via fetchItems(). All contracts align: Protocol seam (item_repository.py:30) declares delete_item(int) \u2192 bool; implementation honors it."
+      },
+      {
+        "id": "material_defects",
+        "score": "met",
+        "evidence": "No SQL outside persistence layer (t1.structural.seam confirms). SQLAlchemy ORM usage is correct: session.get() for type-safe lookup, session.delete()/commit() properly sequenced. Error handling wraps SQLAlchemyError matching add_item pattern. No race conditions or resource leaks. Web button includes aria-label for accessibility. Fetch error handling delegates to health badge with explanatory comment."
+      },
+      {
+        "id": "scope_violations",
+        "score": "met",
+        "evidence": "All 13 executable checks pass without modification. No test deletions, disablements, or weakening. No disabled safety checks. Diff shows only new functionality: Protocol seam extension, repository implementation, service delegation, API endpoint, web button."
+      },
+      {
+        "id": "delivery_quality",
+        "score": "met",
+        "evidence": "Commit message clear and scoped: 'feat(items): support deleting items via API and web UI' with implementation detail. Branch cohesion=1.0 (single consistent branch across repositories). app_launched=true and capability_matrix_coverage=1.0 confirm application was run and fully exercised. Author provided complete verification report matching task requirement."
+      }
+    ],
+    "material_unmet": false,
+    "proposed_class": "fully_achieved_unattended",
+    "adjudication": {
+      "routed": false,
+      "reason": "",
+      "resolved_by": null
+    }
+  },
+  "efficiency": {
+    "recorded_not_scored": true,
+    "wall_clock_seconds": 0.7,
+    "tokens_input": 0,
+    "tokens_output": 0,
+    "cost_usd": 0.0,
+    "commands_executed": 1,
+    "failed_commands": 0,
+    "retries": 0
+  },
+  "artifacts": {
+    "transcript": "transcript.jsonl",
+    "final_message": "final-message.md",
+    "capability_matrix": "capability-matrix.md",
+    "delivery": "delivery.json",
+    "diff": "diff/",
+    "db_snapshot": "db/",
+    "broker_stats": "broker/stats.json"
+  }
+}

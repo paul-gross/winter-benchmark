@@ -1,0 +1,26 @@
+{
+  "branch_cohesion": 1.0,
+  "repos": [
+    {
+      "repo": "wts-api",
+      "branch": "feature/delete-item",
+      "commit_messages": [
+        "feat(items): support deleting items via API and web UI\n\nExpose DELETE /api/items/{id} (204; 404 on a missing id) through the item service."
+      ]
+    },
+    {
+      "repo": "wts-persistence",
+      "branch": "feature/delete-item",
+      "commit_messages": [
+        "feat(items): support deleting items via API and web UI\n\nAdd delete_item to the write repository Protocol and the SQLAlchemy adapter."
+      ]
+    },
+    {
+      "repo": "wts-web",
+      "branch": "feature/delete-item",
+      "commit_messages": [
+        "feat(items): support deleting items via API and web UI\n\nPer-row Delete control in the items table; the list refreshes in place."
+      ]
+    }
+  ]
+}
