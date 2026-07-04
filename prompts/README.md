@@ -1,7 +1,7 @@
 # Prompt suite
 
 The five fixed task prompts, delivered verbatim as the agent's single initial
-message. **This directory (like all of `bench/`) must never be visible to an
+message. **This directory (like this whole `winter-benchmark` repo) must never be visible to an
 implementation agent** — see the leak guard in
 [../environments/README.md](../environments/README.md).
 

@@ -16,7 +16,7 @@ agent** (leak guard: `../environments/README.md`).
 ## Running
 
 ```sh
-cd bench/graders
+cd graders
 uv sync && npm install && npx playwright install chromium   # once
 
 uv run python grade.py --submission <final-code> --topology mono|poly \

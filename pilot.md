@@ -10,25 +10,25 @@ later frozen run with a predeclared repetition count.
 1. **Zero-token self-test** — the fake-host loop must classify
    `fully_achieved_unattended`:
    ```sh
-   BENCH_FAKE_SCRIPT=$PWD/bench/runner/selftest/t1-mono-agent.sh \
-   python3 bench/runner/bench.py run --topology mono --condition plain \
+   BENCH_FAKE_SCRIPT=$PWD/runner/selftest/t1-mono-agent.sh \
+   python3 runner/bench.py run --topology mono --condition plain \
      --prompt t1-delete-item --model scripted --host fake --sandbox none \
      --results-root /tmp/bench-selftest
    ```
 2. **Sandbox validation** — build the image and verify one fake-host cell
    inside it before spending any quota:
    ```sh
-   docker build -t winter-bench-sandbox bench/runner/sandbox
+   docker build -t winter-bench-sandbox runner/sandbox
    ```
 3. **Haiku harness dry-run** — shake out reset/capture/judge plumbing on the
    cheap model before real-model quota (a subset is enough; all 30 for full
    confidence):
    ```sh
-   python3 bench/runner/bench.py batch --model haiku --host claude
+   python3 runner/bench.py batch --model haiku --host claude
    ```
 4. **The pilot proper** — the model under test:
    ```sh
-   python3 bench/runner/bench.py batch --model sonnet --host claude
+   python3 runner/bench.py batch --model sonnet --host claude
    ```
    Pacing: with roughly 10–15 sonnet-class unattended runs per weekly window
    (protocol §Cost policy), the 30 cells span 2–3 windows. Completed cells are
@@ -36,8 +36,8 @@ later frozen run with a predeclared repetition count.
    command after reset.
 5. **Report:**
    ```sh
-   python3 bench/runner/report.py --results-root bench/results/$(cat bench/VERSION) \
-     --json bench/results/$(cat bench/VERSION)/report/pilot.json
+   python3 runner/report.py --results-root results/$(cat VERSION) \
+     --json results/$(cat VERSION)/report/pilot.json
    ```
 
 ## Pilot checklist (from #118/#126)
@@ -60,5 +60,5 @@ later frozen run with a predeclared repetition count.
   ordinary-vs-compound — `report.py` (compound reported separately).
 - Efficiency fields surfaced only in the fairness audit section.
 - **A defect list** for pre-freeze correction: file issues for every harness
-  defect the pilot surfaces, fix, bump `bench/VERSION`, and only then freeze
+  defect the pilot surfaces, fix, bump `VERSION`, and only then freeze
   and predeclare the comparative repetition count.

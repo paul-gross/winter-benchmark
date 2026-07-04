@@ -41,12 +41,12 @@ Encoded in the manifest and applied deterministically:
 
 ```sh
 # Emit the fixture set (git-initialized, with the plain-poly parent README)
-python3 bench/derive-poly/derive_poly.py \
+python3 derive-poly/derive_poly.py \
   --source projects/winter-test-service --out <dir> \
   --git --parent-readme
 
 # Prove determinism: generates twice and asserts byte-for-byte identity
-python3 bench/derive-poly/derive_poly.py --source ... --out <dir> --verify-reproducible
+python3 derive-poly/derive_poly.py --source ... --out <dir> --verify-reproducible
 ```
 
 - The source tree is extracted with `git archive <pinned_sha>`, so a dirty

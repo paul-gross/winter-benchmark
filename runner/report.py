@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Aggregate benchmark results: the four-class distribution, sliced per #118.
 
-    report.py --results-root bench/results/<version> [--json out.json]
+    report.py --results-root results/<version> [--json out.json]
 
 Reports the fully-achieved-unattended rate and the full class distribution by
 experimental condition, topology, prompt type, and ordinary-vs-compound (the

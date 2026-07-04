@@ -21,9 +21,10 @@ on the network or on moving upstream branches), then constructs the cell:
 The `winter` and `winter-workflow` conditions differ ONLY by the
 winter-workflow extension block in .winter/config.toml.
 
-Leak guard: the workspace clone pins a winter revision that predates bench/,
-and the builder additionally deletes bench/ before committing the workspace
-configuration, so prompts and hidden graders can never be visible to the agent.
+Leak guard: the benchmark harness (prompts, hidden graders) lives in the
+separate winter-benchmark repo and is never among the pinned sources, so it
+cannot appear in any cell; the builder additionally deletes a stray bench/
+tree before committing the workspace configuration as a belt-and-braces guard.
 """
 
 from __future__ import annotations
@@ -135,9 +136,9 @@ def build_winter(dest: Path, origins: Path, topology: str, workflow: bool) -> Pa
     run(["git", "clone", "--quiet", str(origins / "winter.git"), str(ws)])
     set_identity(ws)
 
-    # Leak guard: the benchmark harness must never ride along in the
-    # agent-visible workspace clone (pins.toml pins a pre-bench revision, but
-    # delete defensively in case the pin ever moves past bench/'s landing).
+    # Leak guard: the benchmark harness lives in the separate winter-benchmark
+    # repo, so no winter pin can carry it here — but delete a stray bench/
+    # tree defensively so hidden graders can never be agent-visible.
     if (ws / "bench").exists():
         shutil.rmtree(ws / "bench")
 
@@ -234,11 +235,11 @@ def main() -> None:
     parser.add_argument(
         "--sources-dir",
         type=Path,
-        default=HERE.parents[2],
+        default=HERE.parents[1],
         help="Directory containing local checkouts named winter, winter-test-service, "
         "winter-service-tmux, winter-service-docker, winter-workflow (each must "
-        "contain its pinned commit). Default: the parent of the winter checkout "
-        "this script lives in.",
+        "contain its pinned commit). Default: the parent of the winter-benchmark "
+        "checkout this script lives in.",
     )
     parser.add_argument(
         "--bootstrap",

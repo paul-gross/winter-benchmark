@@ -26,11 +26,11 @@ else implements it.
 
 ```sh
 # Derive the polyrepo fixture from the pinned mono commit
-python3 bench/derive-poly/derive_poly.py \
-  --source projects/winter-test-service --out /tmp/poly-fixtures
+python3 derive-poly/derive_poly.py \
+  --source ../winter-test-service --out /tmp/poly-fixtures
 
 # Run a single cell (see runner/README.md for the sandbox prerequisites)
-python3 bench/runner/bench.py run \
+python3 runner/bench.py run \
   --topology mono --condition plain --prompt t1-delete-item \
   --model haiku --host claude
 ```

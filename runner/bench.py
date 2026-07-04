@@ -424,7 +424,7 @@ def main() -> None:
     p.add_argument("--sandbox", choices=["docker", "none"], default="docker")
     p.add_argument("--max-run-minutes", type=int, default=90,
                    help="generous boundary used only to break a stuck run")
-    p.add_argument("--sources-dir", type=Path, default=BENCH.parents[1],
+    p.add_argument("--sources-dir", type=Path, default=BENCH.parent,
                    help="directory containing the pinned source checkouts (see environments/)")
     p.add_argument("--results-root", type=Path, default=None)
     p.add_argument("--work-root", type=Path, default=None)
@@ -441,7 +441,7 @@ def main() -> None:
     b.add_argument("--repetition", type=int, default=1)
     b.add_argument("--sandbox", choices=["docker", "none"], default="docker")
     b.add_argument("--max-run-minutes", type=int, default=90)
-    b.add_argument("--sources-dir", type=Path, default=BENCH.parents[1])
+    b.add_argument("--sources-dir", type=Path, default=BENCH.parent)
     b.add_argument("--results-root", type=Path, default=None)
     b.add_argument("--work-root", type=Path, default=None)
     b.add_argument("--force", action="store_true")

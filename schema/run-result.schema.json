@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/paul-gross/winter/bench/schema/run-result.schema.json",
+  "$id": "https://github.com/paul-gross/winter-benchmark/schema/run-result.schema.json",
   "title": "Winter autonomy benchmark — per-run result record",
   "type": "object",
   "required": [

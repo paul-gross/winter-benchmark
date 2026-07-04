@@ -4,7 +4,7 @@
 schema-conformant result record:
 
 ```sh
-python3 bench/runner/bench.py run \
+python3 runner/bench.py run \
   --topology mono|poly --condition plain|winter|winter-workflow \
   --prompt t1-delete-item --model haiku|sonnet --host claude|codex|opencode|fake
 ```
@@ -30,7 +30,7 @@ python3 bench/runner/bench.py run \
    phase-6 blinded judge, then result-class assignment (a failed required
    check can never be upgraded).
 5. **Emit** — one `result.json` per run under
-   `bench/results/<version>/runs/<run-id>/`, including the recorded-but-never-
+   `results/<version>/runs/<run-id>/`, including the recorded-but-never-
    scored efficiency fields. An existing result skips the cell
    (checkpoint/resume across weekly quota windows); `--force` re-runs.
 
@@ -83,8 +83,8 @@ namespace).
 ## Self-test (zero tokens)
 
 ```sh
-BENCH_FAKE_SCRIPT=$PWD/bench/runner/selftest/t1-mono-agent.sh \
-python3 bench/runner/bench.py run --topology mono --condition plain \
+BENCH_FAKE_SCRIPT=$PWD/runner/selftest/t1-mono-agent.sh \
+python3 runner/bench.py run --topology mono --condition plain \
   --prompt t1-delete-item --model scripted --host fake --sandbox none \
   --results-root /tmp/bench-selftest
 ```

@@ -148,7 +148,7 @@ command counts) kept only to audit condition fairness.
 ## Results store
 
 ```
-bench/results/<benchmark-version>/
+results/<benchmark-version>/
 ├── runs/<run-id>/            # one directory per run
 │   ├── result.json           # the schema-conformant record
 │   ├── delivery.json         # per-repo branch/commit capture

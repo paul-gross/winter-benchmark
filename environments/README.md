@@ -60,9 +60,10 @@ between the `winter` and `winter-workflow` conditions.
   task hints, no evaluation hints.
 - **No Winter context in plain cells.** Nothing from `context/`, `AGENTS.md`,
   or the extensions is copied into a plain baseline.
-- **Hidden-check leak guard.** The workspace's winter pin predates `bench/`,
-  and the builder deletes `bench/` defensively before committing the workspace
-  configuration, so prompts/graders can never be agent-visible in any cell.
+- **Hidden-check leak guard.** The benchmark harness lives in this separate
+  `winter-benchmark` repo and is never among the pinned sources; the builder
+  additionally deletes a stray `bench/` tree defensively before committing the
+  workspace configuration, so prompts/graders can never be agent-visible.
 
 ## Requirements
 
