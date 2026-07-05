@@ -354,6 +354,9 @@ def run_in_sandbox(args: argparse.Namespace, run_id: str, run_dir: Path) -> Path
         "-v", f"{workspace_src}:/sources:ro",       # pinned sources: read-only
         "-v", f"{results_root}:/results",           # the only writable host mount
         "-v", f"{creds}:/root/.claude",             # subscription credential (held constant)
+        # Claude Code refuses --dangerously-skip-permissions as root unless it
+        # knows it is inside a disposable sandbox (the devcontainer contract).
+        "-e", "IS_SANDBOX=1",
         *(
             ["-e", f"BENCH_FAKE_SCRIPT={os.environ['BENCH_FAKE_SCRIPT']}"]
             if args.host == "fake" and os.environ.get("BENCH_FAKE_SCRIPT")
@@ -365,7 +368,13 @@ def run_in_sandbox(args: argparse.Namespace, run_id: str, run_dir: Path) -> Path
             "dockerd >/var/log/dockerd.log 2>&1 & timeout 90 sh -c 'until docker info >/dev/null 2>&1; do sleep 1; done'",
             "git config --global --add safe.directory '*'",  # host mounts owned by another uid
             "git config --global user.name bench && git config --global user.email bench@bench.invalid",
+            # Headless claude needs an onboarded config file; the credential
+            # dir mount alone leaves /root/.claude.json missing.
+            "echo '{\"hasCompletedOnboarding\": true}' > /root/.claude.json",
             "mkdir -p /work && cp -r /bench-src /work/bench",  # graders need a writable tree
+            # The hidden Playwright suite resolves @playwright/test locally;
+            # the read-only bench mount carries no node_modules.
+            "cd /work/bench/graders && npm ci --no-audit --no-fund >/dev/null",
             " ".join([
                 "python3 /work/bench/runner/bench.py run",
                 f"--topology {args.topology} --condition {args.condition}",

@@ -30,11 +30,22 @@ LAUNCH_MARKERS = re.compile(
 # A capability matrix row: a markdown table row, or a checklist row that pairs
 # a requirement with a verification method.
 TABLE_ROW = re.compile(r"^\s*\|.+\|.+\|", re.MULTILINE)
+BULLET_ROW = re.compile(r"^\s*[-*] .+$", re.MULTILINE)
 METHOD_WORDS = re.compile(
     r"(curl|GET|POST|DELETE|http|psql|SELECT|query|clicked?|browser|UI|page"
     r"|request|command|observed|verified)",
     re.IGNORECASE,
 )
+
+
+def matrix_rows(final_message: str) -> list[str]:
+    """Capability-matrix rows: markdown table rows, else verification bullets.
+    The prompt mandates per-requirement method + observed result — content,
+    not table formatting — so a bulleted report counts."""
+    table = [r for r in TABLE_ROW.findall(final_message) if METHOD_WORDS.search(r)]
+    if len(table) >= 2:
+        return table
+    return [r for r in BULLET_ROW.findall(final_message) if METHOD_WORDS.search(r)]
 
 
 def requirement_bullets(prompt_text: str) -> list[str]:
@@ -52,7 +63,7 @@ def keyword_set(text: str) -> set[str]:
 
 
 def matrix_coverage(final_message: str, prompt_text: str) -> tuple[bool, float | None]:
-    rows = [r for r in TABLE_ROW.findall(final_message) if METHOD_WORDS.search(r)]
+    rows = matrix_rows(final_message)
     present = len(rows) >= 2  # more than a header line
     if not present:
         return False, None

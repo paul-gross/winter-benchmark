@@ -99,6 +99,10 @@ def make_poly_origins(mono_source: Path, origins: Path) -> None:
             "--source", str(mono_source),
             "--out", str(poly_src),
             "--git",
+            # Committed lockfiles, like the mono fixture's uv.lock: without
+            # them the agent's first `uv sync` litters every Python repo with
+            # an untracked uv.lock and the delivery gate reads it as dirty.
+            "--lock",
         ]
     )
     for name in POLY_REPOS:

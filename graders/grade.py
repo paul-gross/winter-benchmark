@@ -412,6 +412,18 @@ class Stack:
 # ---------------------------------------------------------------------------
 
 
+def is_test_file(path: str) -> bool:
+    """Test code is outside the seam requirement: the prompt constrains the
+    deletion *feature path*, and direct-DB assertions/teardown in a test suite
+    do not route that path around the repository seam."""
+    parts = path.split("/")
+    return (
+        "tests" in parts
+        or parts[-1] == "conftest.py"
+        or parts[-1].startswith("test_")
+    )
+
+
 def added_python_lines_outside_persistence(stack: Stack) -> list[str]:
     """Added diff lines in Python files outside the persistence layer."""
     lines: list[str] = []
@@ -424,7 +436,7 @@ def added_python_lines_outside_persistence(stack: Stack) -> list[str]:
             if line.startswith("+++ b/"):
                 current_file = line[6:]
             elif line.startswith("+") and not line.startswith("+++"):
-                if not current_file.endswith(".py"):
+                if not current_file.endswith(".py") or is_test_file(current_file):
                     continue
                 if stack.topology == "mono" and current_file.startswith("wts_persistence/"):
                     continue

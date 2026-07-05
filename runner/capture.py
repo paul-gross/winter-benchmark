@@ -108,10 +108,23 @@ def capture_broker(out_dir: Path, condition: str) -> dict:
 
 
 def extract_capability_matrix(final_message: str, out_dir: Path) -> None:
-    """Pull markdown tables out of the final message as the capability-matrix
-    artifact (detection/coverage scoring lives in graders/evidence.py)."""
+    """Pull the verification report out of the final message as the
+    capability-matrix artifact: markdown tables, else verification bullets —
+    the same row rules as graders/evidence.py, which owns detection/coverage
+    scoring. The prompt mandates content, not table formatting."""
     tables = re.findall(r"(?:^\|.*\|\s*$\n?)+", final_message, re.MULTILINE)
-    (out_dir / "capability-matrix.md").write_text("\n\n".join(tables) if tables else "")
+    if tables:
+        (out_dir / "capability-matrix.md").write_text("\n\n".join(tables))
+        return
+    bullets = [
+        line for line in re.findall(r"^\s*[-*] .+$", final_message, re.MULTILINE)
+        if re.search(
+            r"(curl|GET|POST|DELETE|http|psql|SELECT|query|clicked?|browser|UI|page"
+            r"|request|command|observed|verified)",
+            line, re.IGNORECASE,
+        )
+    ]
+    (out_dir / "capability-matrix.md").write_text("\n".join(bullets) if bullets else "")
 
 
 def snapshot_submission(repos: dict[str, Path], dest: Path, topology: str) -> Path:

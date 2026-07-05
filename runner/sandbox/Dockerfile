@@ -34,5 +34,10 @@ RUN npm install -g @anthropic-ai/claude-code
 # cost inside the sandbox.
 RUN npm install -g playwright@1.61.1 && npx playwright install --with-deps chromium
 
+# Compose v2 plugin: the winter conditions' docker orchestrator drives
+# `docker compose`, which the bare docker.io package does not ship.
+RUN apt-get update && apt-get install -y --no-install-recommends docker-compose-v2 \
+    && rm -rf /var/lib/apt/lists/*
+
 ENV PATH="/root/.local/bin:${PATH}"
 WORKDIR /work
