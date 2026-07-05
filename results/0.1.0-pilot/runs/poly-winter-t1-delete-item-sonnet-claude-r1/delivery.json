@@ -1,0 +1,62 @@
+{
+  "committed": true,
+  "branch_cohesion": 1.0,
+  "diff_non_empty": true,
+  "repos": [
+    {
+      "repo": "wts-api",
+      "touched": true,
+      "branch": "feat/delete-item",
+      "default_branch": "master",
+      "commits": [
+        {
+          "sha": "3edaff4f64033ca5dfabc55f9e3d2884b811e67b",
+          "message": "feat(wts-api): add DELETE /api/items/{id}\n\nRemoves an item via the service layer, returning 204 on success and\n404 when the id doesn't exist."
+        }
+      ],
+      "diff_stat": "2 files changed, 9 insertions(+)"
+    },
+    {
+      "repo": "wts-messaging",
+      "touched": false,
+      "branch": "alpha",
+      "default_branch": "master",
+      "commits": [],
+      "diff_stat": ""
+    },
+    {
+      "repo": "wts-persistence",
+      "touched": true,
+      "branch": "feat/delete-item",
+      "default_branch": "master",
+      "commits": [
+        {
+          "sha": "dc4a3fdf1a4f00bb43b53ea7611762aa542ad535",
+          "message": "feat(wts-persistence): add delete_item to the item repository seam\n\nLets callers remove an item through the write-repository Protocol,\nmirroring add_item \u2014 no SQL escapes the repository layer."
+        }
+      ],
+      "diff_stat": "2 files changed, 14 insertions(+)"
+    },
+    {
+      "repo": "wts-web",
+      "touched": true,
+      "branch": "feat/delete-item",
+      "default_branch": "master",
+      "commits": [
+        {
+          "sha": "0a0b75401e31c93ca5fd1bc0c5fd7d03597b6160",
+          "message": "feat(wts-web): add per-row delete control for items\n\nCalls DELETE /api/items/{id} and removes the row from local state on\nsuccess, so the list updates without a full page reload."
+        }
+      ],
+      "diff_stat": "1 file changed, 35 insertions(+)"
+    },
+    {
+      "repo": "wts-worker",
+      "touched": false,
+      "branch": "alpha",
+      "default_branch": "master",
+      "commits": [],
+      "diff_stat": ""
+    }
+  ]
+}

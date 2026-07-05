@@ -1,0 +1,125 @@
+{
+  "results_root": "results/0.1.0-pilot",
+  "runs_recorded": 10,
+  "note": "No comparative claim is drawn from a one-run-per-cell pilot; comparative claims require the frozen benchmark with a predeclared repetition count (protocol \u00a7Pilot).",
+  "overall": {
+    "runs": 10,
+    "fully_achieved_rate": 1.0,
+    "distribution": {
+      "fully_achieved_unattended": 10,
+      "partially_achieved_unattended": 0,
+      "not_achieved_unattended": 0,
+      "human_intervention_required": 0
+    }
+  },
+  "by_condition": {
+    "plain": {
+      "runs": 5,
+      "fully_achieved_rate": 1.0,
+      "distribution": {
+        "fully_achieved_unattended": 5,
+        "partially_achieved_unattended": 0,
+        "not_achieved_unattended": 0,
+        "human_intervention_required": 0
+      }
+    },
+    "winter": {
+      "runs": 3,
+      "fully_achieved_rate": 1.0,
+      "distribution": {
+        "fully_achieved_unattended": 3,
+        "partially_achieved_unattended": 0,
+        "not_achieved_unattended": 0,
+        "human_intervention_required": 0
+      }
+    },
+    "winter-workflow": {
+      "runs": 2,
+      "fully_achieved_rate": 1.0,
+      "distribution": {
+        "fully_achieved_unattended": 2,
+        "partially_achieved_unattended": 0,
+        "not_achieved_unattended": 0,
+        "human_intervention_required": 0
+      }
+    }
+  },
+  "by_topology": {
+    "mono": {
+      "runs": 6,
+      "fully_achieved_rate": 1.0,
+      "distribution": {
+        "fully_achieved_unattended": 6,
+        "partially_achieved_unattended": 0,
+        "not_achieved_unattended": 0,
+        "human_intervention_required": 0
+      }
+    },
+    "poly": {
+      "runs": 4,
+      "fully_achieved_rate": 1.0,
+      "distribution": {
+        "fully_achieved_unattended": 4,
+        "partially_achieved_unattended": 0,
+        "not_achieved_unattended": 0,
+        "human_intervention_required": 0
+      }
+    }
+  },
+  "by_prompt": {
+    "t1-delete-item": {
+      "runs": 10,
+      "fully_achieved_rate": 1.0,
+      "distribution": {
+        "fully_achieved_unattended": 10,
+        "partially_achieved_unattended": 0,
+        "not_achieved_unattended": 0,
+        "human_intervention_required": 0
+      }
+    }
+  },
+  "ordinary_vs_compound": {
+    "ordinary": {
+      "runs": 10,
+      "fully_achieved_rate": 1.0,
+      "distribution": {
+        "fully_achieved_unattended": 10,
+        "partially_achieved_unattended": 0,
+        "not_achieved_unattended": 0,
+        "human_intervention_required": 0
+      }
+    }
+  },
+  "per_cell": {
+    "mono-plain-t1-delete-item-haiku-claude-r1": "fully_achieved_unattended",
+    "mono-plain-t1-delete-item-scripted-fake-r1": "fully_achieved_unattended",
+    "mono-plain-t1-delete-item-sonnet-claude-r1": "fully_achieved_unattended",
+    "mono-winter-t1-delete-item-scripted-fake-r1": "fully_achieved_unattended",
+    "mono-winter-t1-delete-item-sonnet-claude-r1": "fully_achieved_unattended",
+    "mono-winter-workflow-t1-delete-item-sonnet-claude-r1": "fully_achieved_unattended",
+    "poly-plain-t1-delete-item-scripted-fake-r1": "fully_achieved_unattended",
+    "poly-plain-t1-delete-item-sonnet-claude-r1": "fully_achieved_unattended",
+    "poly-winter-t1-delete-item-sonnet-claude-r1": "fully_achieved_unattended",
+    "poly-winter-workflow-t1-delete-item-sonnet-claude-r1": "fully_achieved_unattended"
+  },
+  "efficiency_fairness_audit_not_scored": {
+    "plain": {
+      "median_wall_clock_seconds": 171.4,
+      "median_tokens_output": 11048,
+      "median_commands": 46,
+      "median_failed_commands": 3
+    },
+    "winter": {
+      "median_wall_clock_seconds": 283.1,
+      "median_tokens_output": 7185,
+      "median_commands": 62,
+      "median_failed_commands": 3
+    },
+    "winter-workflow": {
+      "median_wall_clock_seconds": 1227.1,
+      "median_tokens_output": 31816.5,
+      "median_commands": 181.0,
+      "median_failed_commands": 4.0
+    }
+  }
+}

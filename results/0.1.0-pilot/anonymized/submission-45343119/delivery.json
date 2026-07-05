@@ -1,0 +1,12 @@
+{
+  "branch_cohesion": 1.0,
+  "repos": [
+    {
+      "repo": "winter-test-service",
+      "branch": "alpha",
+      "commit_messages": [
+        "feat(winter-test-service): support deleting items\n\nAdds DELETE /api/items/{id} through the repository seam (WriteItemRepository.delete_item),\na service-layer ItemNotFoundError mapped to 404, and a per-row delete control in the web UI\nthat removes the row from state without a full page reload.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
+      ]
+    }
+  ]
+}

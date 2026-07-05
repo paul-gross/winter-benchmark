@@ -1,0 +1,85 @@
+diff --git a/src/App.tsx b/src/App.tsx
+index 4ddfad3..017f54d 100644
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -53,6 +53,8 @@ export default function App() {
+   const [adding, setAdding] = useState(false)
+   const [crashPending, setCrashPending] = useState(false)
+   const [crashMsg, setCrashMsg] = useState<string | null>(null)
++  const [deletingIds, setDeletingIds] = useState<Set<number>>(new Set())
++  const [deleteError, setDeleteError] = useState<string | null>(null)
+ 
+   const fetchHealth = useCallback(async () => {
+     try {
+@@ -113,6 +115,28 @@ export default function App() {
+     }
+   }
+ 
++  async function handleDelete(id: number) {
++    setDeletingIds(prev => new Set(prev).add(id))
++    setDeleteError(null)
++    try {
++      const res = await fetch(`/api/items/${id}`, { method: 'DELETE' })
++      if (!res.ok && res.status !== 404) {
++        const body = await res.text()
++        setDeleteError(`Error ${res.status}: ${body}`)
++        return
++      }
++      setItems(prev => prev.filter(item => item.id !== id))
++    } catch {
++      setDeleteError('Request failed — API may be unreachable')
++    } finally {
++      setDeletingIds(prev => {
++        const next = new Set(prev)
++        next.delete(id)
++        return next
++      })
++    }
++  }
++
+   async function handleCrash() {
+     if (!confirm('This will hard-crash the API process (os._exit). Proceed?')) return
+     setCrashPending(true)
+@@ -186,6 +210,9 @@ export default function App() {
+             (auto-refreshes every 5s)
+           </span>
+         </h2>
++        {deleteError && (
++          <p style={{ marginTop: 0, marginBottom: 8, color: '#ef4444', fontSize: '0.85rem' }}>{deleteError}</p>
++        )}
+         {items.length === 0 ? (
+           <p style={{ color: '#999', fontSize: '0.9rem' }}>No items yet.</p>
+         ) : (
+@@ -196,6 +223,7 @@ export default function App() {
+                 <th style={{ padding: '4px 8px' }}>Label</th>
+                 <th style={{ padding: '4px 8px' }}>Source</th>
+                 <th style={{ padding: '4px 8px' }}>Created at</th>
++                <th style={{ padding: '4px 8px' }}></th>
+               </tr>
+             </thead>
+             <tbody>
+@@ -221,6 +249,24 @@ export default function App() {
+                   <td style={{ padding: '4px 8px', color: '#6b7280' }}>
+                     {new Date(item.created_at).toLocaleString()}
+                   </td>
++                  <td style={{ padding: '4px 8px', textAlign: 'right' }}>
++                    <button
++                      onClick={() => handleDelete(item.id)}
++                      disabled={deletingIds.has(item.id)}
++                      style={{
++                        padding: '3px 10px',
++                        background: 'transparent',
++                        color: '#ef4444',
++                        border: '1px solid #ef4444',
++                        borderRadius: 4,
++                        fontSize: '0.8rem',
++                        cursor: deletingIds.has(item.id) ? 'not-allowed' : 'pointer',
++                        opacity: deletingIds.has(item.id) ? 0.5 : 1,
++                      }}
++                    >
++                      {deletingIds.has(item.id) ? 'Deleting…' : 'Delete'}
++                    </button>
++                  </td>
+                 </tr>
+               ))}
+             </tbody>

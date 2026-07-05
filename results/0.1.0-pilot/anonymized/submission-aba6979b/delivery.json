@@ -1,0 +1,26 @@
+{
+  "branch_cohesion": 1.0,
+  "repos": [
+    {
+      "repo": "wts-api",
+      "branch": "alpha",
+      "commit_messages": [
+        "feat(wts-api): add DELETE /api/items/{id} endpoint\n\nRoutes deletion through ItemService into wts-persistence's write repository\nseam, returning 204 on success and mapping ItemNotFoundError to 404."
+      ]
+    },
+    {
+      "repo": "wts-persistence",
+      "branch": "alpha",
+      "commit_messages": [
+        "feat(wts-persistence): add delete_item to the write repository seam\n\nIntroduces ItemNotFoundError as the not-found signal and implements\ndelete_item on WriteItemRepository so callers can remove an item by id\nwithout reaching around the repository seam."
+      ]
+    },
+    {
+      "repo": "wts-web",
+      "branch": "alpha",
+      "commit_messages": [
+        "feat(wts-web): add per-row delete control to the items list\n\nAdds a delete button per row that calls DELETE /api/items/{id} and removes\nthe row from local state on success, with no full page reload."
+      ]
+    }
+  ]
+}

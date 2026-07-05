@@ -1,0 +1,257 @@
+{
+  "schema_version": 1,
+  "benchmark_version": "0.1.0-pilot",
+  "run_id": "poly-winter-t1-delete-item-sonnet-claude-r1",
+  "created_at": "2026-07-04T16:01:17.206357+00:00",
+  "cell": {
+    "topology": "poly",
+    "condition": "winter",
+    "prompt": "t1-delete-item",
+    "model": "sonnet",
+    "host": "claude",
+    "host_version": "2.1.201 (Claude Code)",
+    "repetition": 1
+  },
+  "pins": {
+    "mono_sha": "e7249413eee9b9c6e6cb5ce90cf5280dfc57e20d"
+  },
+  "result_class": "fully_achieved_unattended",
+  "intervention": {
+    "engineering_intervention": false,
+    "events": []
+  },
+  "stall": {
+    "detected": false,
+    "signal": "none"
+  },
+  "checks": [
+    {
+      "id": "reg.api-boots-health-ok",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "reg.worker-writes-rows",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "reg.web-typecheck-build",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": "\n> winter-test-service-web@0.0.1 build\n> tsc && vite build\n\nvite v6.4.3 building for production...\ntransforming...\n\u2713 29 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                   0.40 kB \u2502 gzip:  0.27 kB\ndist/assets/index-DzA66tKi.css    0.11 kB \u2502 gzip:  0.12 kB\ndist/assets/index-Cg_y3OtP.js   200.38 kB \u2502 gzip: 62.85 kB\n\u2713 built in 573ms\n"
+    },
+    {
+      "id": "del.committed-feature-branch",
+      "layer": "delivery",
+      "required": true,
+      "status": "pass",
+      "detail": "cohesion=1.0"
+    },
+    {
+      "id": "del.diff-non-empty",
+      "layer": "delivery",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "reg.items-create-list",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "reg.ui-lists-items",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "reg.api-health",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "t1.api.delete-204-removes",
+      "layer": "api",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "t1.api.delete-missing-404",
+      "layer": "api",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "t1.db.only-target-removed",
+      "layer": "db",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "t1.ui.row-delete-no-reload",
+      "layer": "ui",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "t1.structural.seam",
+      "layer": "structural",
+      "required": true,
+      "status": "pass",
+      "detail": "no SQL added outside the persistence layer"
+    }
+  ],
+  "evidence": {
+    "app_launched": true,
+    "db_user_rows": 0,
+    "db_worker_rows": 98,
+    "broker_deliveries": 99,
+    "capability_matrix_present": true,
+    "capability_matrix_coverage": 1.0
+  },
+  "delivery": {
+    "committed": true,
+    "branch_cohesion": 1.0,
+    "repos": [
+      {
+        "repo": "wts-api",
+        "touched": true,
+        "branch": "feat/delete-item",
+        "default_branch": "master",
+        "commits": [
+          {
+            "sha": "3edaff4f64033ca5dfabc55f9e3d2884b811e67b",
+            "message": "feat(wts-api): add DELETE /api/items/{id}\n\nRemoves an item via the service layer, returning 204 on success and\n404 when the id doesn't exist."
+          }
+        ],
+        "diff_stat": "2 files changed, 9 insertions(+)"
+      },
+      {
+        "repo": "wts-messaging",
+        "touched": false,
+        "branch": "alpha",
+        "default_branch": "master",
+        "commits": [],
+        "diff_stat": ""
+      },
+      {
+        "repo": "wts-persistence",
+        "touched": true,
+        "branch": "feat/delete-item",
+        "default_branch": "master",
+        "commits": [
+          {
+            "sha": "dc4a3fdf1a4f00bb43b53ea7611762aa542ad535",
+            "message": "feat(wts-persistence): add delete_item to the item repository seam\n\nLets callers remove an item through the write-repository Protocol,\nmirroring add_item \u2014 no SQL escapes the repository layer."
+          }
+        ],
+        "diff_stat": "2 files changed, 14 insertions(+)"
+      },
+      {
+        "repo": "wts-web",
+        "touched": true,
+        "branch": "feat/delete-item",
+        "default_branch": "master",
+        "commits": [
+          {
+            "sha": "0a0b75401e31c93ca5fd1bc0c5fd7d03597b6160",
+            "message": "feat(wts-web): add per-row delete control for items\n\nCalls DELETE /api/items/{id} and removes the row from local state on\nsuccess, so the list updates without a full page reload."
+          }
+        ],
+        "diff_stat": "1 file changed, 35 insertions(+)"
+      },
+      {
+        "repo": "wts-worker",
+        "touched": false,
+        "branch": "alpha",
+        "default_branch": "master",
+        "commits": [],
+        "diff_stat": ""
+      }
+    ]
+  },
+  "judge": {
+    "model": "claude-haiku-4-5-20251001",
+    "config_id": "judge-v1",
+    "blind_id": "submission-cada709a",
+    "dimensions": [
+      {
+        "id": "requirement_completeness",
+        "score": "met",
+        "evidence": "All functional requirements verified by executable checks: t1.api.delete-204-removes confirms DELETE /api/items/{id} returns 204 and removes the item; t1.api.delete-missing-404 confirms 404 on missing id; t1.db.only-target-removed confirms only the target item is removed; t1.structural.seam confirms 'no SQL added outside the persistence layer'; t1.ui.row-delete-no-reload confirms list updates without full page reload. All regression tests (reg.*) pass, confirming existing behavior (adding items, listing, health badge) maintained. Runtime signals: app_launched=true, capability_matrix_coverage=1.0 indicating all requirements were exercised and verified per the task's explicit requirement for runtime verification."
+      },
+      {
+        "id": "coherence_maintainability",
+        "score": "met",
+        "evidence": "API endpoint (wts-api/app/main.py) mirrors the pattern of create_item\u2014uses dependency injection for service, raises HTTPException for errors. Service layer (ItemService.delete_item) mirrors add_item symmetry\u2014thin delegation to repository. Repository implementation (wts_persistence) mirrors add_item structure\u2014Session context manager, error wrapping via _wrap(), transaction commit. Web component integrates into existing table structure without duplication\u2014button appended as table column following established styling conventions. No leaky abstractions; clean seam boundaries preserved across all three repositories."
+      },
+      {
+        "id": "refactor_authenticity",
+        "score": "not_applicable",
+        "evidence": "Task requests new feature (delete capability), not a structural refactor. No existing code reorganized or remodeled."
+      },
+      {
+        "id": "cross_boundary_consistency",
+        "score": "met",
+        "evidence": "API \u2194 Service: service.delete_item(item_id: int) returns bool; endpoint maps False\u2192404. Service \u2194 Repository: service delegates to _items.delete_item(item_id), repository method signature matches (int\u2192bool). Repository Protocol (IWriteItemRepository) declares delete_item signature, implementation honors it. Frontend \u2194 API: DELETE /api/items/{id} called with id as path param; list state updated on 200 or 404, no state inconsistency. All layer contracts consistent."
+      },
+      {
+        "id": "material_defects",
+        "score": "met",
+        "evidence": "Repository: session.get() null-checks before delete; SQLAlchemyError caught and wrapped. API: HTTPException properly raised for 404 case. Frontend: fetch exception caught; deletingId state cleaned in finally block; no premature state mutations. No SQL injection (ORM-only). No transaction management issues (explicit commit, proper session scope). Test t1.db.only-target-removed passes, confirming data integrity. No observable defects in diff or checks."
+      },
+      {
+        "id": "scope_violations",
+        "score": "met",
+        "evidence": "No tests deleted, disabled, or weakened\u2014all regression checks pass. No evaluation gaming\u2014straightforward implementation verified by ground-truth executable checks. No reviewer-directed instructions embedded in submission; commit messages are clean, scoped statements of intent. Delivery metadata shows cohesion=1.0 with consistent branch naming across all touched repositories (feat/delete-item everywhere)."
+      },
+      {
+        "id": "delivery_quality",
+        "score": "met",
+        "evidence": "Commit messages follow convention: 'feat(repo): description' with concise body explaining the what and why for each service layer (wts-api, wts-persistence, wts-web). Branch naming consistent across all three repositories (feat/delete-item). Branch cohesion=1.0 (perfect). Diff focused and minimal\u2014only necessary changes to implement the feature, no extraneous cleanup or refactoring."
+      }
+    ],
+    "material_unmet": false,
+    "proposed_class": "fully_achieved_unattended",
+    "adjudication": {
+      "routed": false,
+      "reason": "",
+      "resolved_by": null
+    }
+  },
+  "efficiency": {
+    "recorded_not_scored": true,
+    "wall_clock_seconds": 283.3,
+    "tokens_input": 356,
+    "tokens_output": 16949,
+    "cost_usd": 1.8093979999999998,
+    "commands_executed": 71,
+    "failed_commands": 3,
+    "retries": null
+  },
+  "artifacts": {
+    "transcript": "transcript.jsonl",
+    "final_message": "final-message.md",
+    "capability_matrix": "capability-matrix.md",
+    "delivery": "delivery.json",
+    "diff": "diff/",
+    "db_snapshot": "db/",
+    "broker_stats": "broker/stats.json"
+  }
+}

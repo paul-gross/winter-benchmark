@@ -1,0 +1,26 @@
+{
+  "branch_cohesion": 1.0,
+  "repos": [
+    {
+      "repo": "wts-api",
+      "branch": "feat/delete-item",
+      "commit_messages": [
+        "feat(wts-api): add DELETE /api/items/{id}\n\nRemoves an item via the service layer, returning 204 on success and\n404 when the id doesn't exist."
+      ]
+    },
+    {
+      "repo": "wts-persistence",
+      "branch": "feat/delete-item",
+      "commit_messages": [
+        "feat(wts-persistence): add delete_item to the item repository seam\n\nLets callers remove an item through the write-repository Protocol,\nmirroring add_item \u2014 no SQL escapes the repository layer."
+      ]
+    },
+    {
+      "repo": "wts-web",
+      "branch": "feat/delete-item",
+      "commit_messages": [
+        "feat(wts-web): add per-row delete control for items\n\nCalls DELETE /api/items/{id} and removes the row from local state on\nsuccess, so the list updates without a full page reload."
+      ]
+    }
+  ]
+}

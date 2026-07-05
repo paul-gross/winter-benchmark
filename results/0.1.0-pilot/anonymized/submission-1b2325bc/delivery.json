@@ -1,0 +1,12 @@
+{
+  "branch_cohesion": 1.0,
+  "repos": [
+    {
+      "repo": "winter-test-service",
+      "branch": "feature/delete-items",
+      "commit_messages": [
+        "feat(winter-test-service): support deleting items\n\nAdds DELETE /api/items/{id} through the same repository seam as the\nexisting item operations (service -> IWriteItemRepository -> SQLAlchemy\nadapter, no raw SQL outside the persistence layer). Returns 204 on\nsuccess and 404 when the id doesn't exist.\n\nThe web UI gets a per-row delete control that removes the row from\nlocal state on success, so the list updates without a page reload."
+      ]
+    }
+  ]
+}

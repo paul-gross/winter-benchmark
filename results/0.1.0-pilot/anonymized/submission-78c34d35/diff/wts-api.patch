@@ -1,0 +1,28 @@
+diff --git a/app/main.py b/app/main.py
+index f4f0fbf..0a745ac 100644
+--- a/app/main.py
++++ b/app/main.py
+@@ -102,6 +102,12 @@ def create_item(body: ItemCreate, service: ItemServiceDep):
+         raise HTTPException(status_code=400, detail=str(exc))
+ 
+ 
++@app.delete("/api/items/{item_id}", status_code=204)
++def delete_item(item_id: int, service: ItemServiceDep):
++    if not service.delete_item(item_id):
++        raise HTTPException(status_code=404, detail="item not found")
++
++
+ @app.post("/api/chaos/crash")
+ def chaos_crash():
+     logger.info("CHAOS: /api/chaos/crash triggered — calling os._exit(1)")
+diff --git a/app/services/item_service.py b/app/services/item_service.py
+index ebc3638..960eafa 100644
+--- a/app/services/item_service.py
++++ b/app/services/item_service.py
+@@ -21,3 +21,6 @@ class ItemService:
+         if not cleaned:
+             raise ItemValidationError("label is required and must not be empty")
+         return self._items.add_item(cleaned, ItemSource.API)
++
++    def delete_item(self, item_id: int) -> bool:
++        return self._items.delete_item(item_id)

@@ -1,0 +1,9 @@
+{
+  "found": true,
+  "container": "wtsb-rabbitmq",
+  "vhost": "wts-alpha",
+  "queues": {
+    "heartbeats": 80
+  },
+  "deliveries": 80
+}

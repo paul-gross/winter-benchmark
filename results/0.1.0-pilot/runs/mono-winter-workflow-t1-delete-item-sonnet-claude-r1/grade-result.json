@@ -1,0 +1,122 @@
+{
+  "prompt": "t1-delete-item",
+  "topology": "mono",
+  "checks": [
+    {
+      "id": "reg.api-boots-health-ok",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "reg.worker-writes-rows",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "reg.web-typecheck-build",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": "\n> winter-test-service-web@0.0.1 build\n> tsc && vite build\n\nvite v6.4.3 building for production...\ntransforming...\n\u2713 29 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                   0.40 kB \u2502 gzip:  0.27 kB\ndist/assets/index-DzA66tKi.css    0.11 kB \u2502 gzip:  0.12 kB\ndist/assets/index-z7e1hWf1.js   200.39 kB \u2502 gzip: 62.86 kB\n\u2713 built in 602ms\n"
+    },
+    {
+      "id": "del.committed-feature-branch",
+      "layer": "delivery",
+      "required": true,
+      "status": "pass",
+      "detail": "cohesion=1.0"
+    },
+    {
+      "id": "del.diff-non-empty",
+      "layer": "delivery",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "reg.items-create-list",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "reg.ui-lists-items",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "reg.api-health",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "t1.api.delete-204-removes",
+      "layer": "api",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "t1.api.delete-missing-404",
+      "layer": "api",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "t1.db.only-target-removed",
+      "layer": "db",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "t1.ui.row-delete-no-reload",
+      "layer": "ui",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "t1.structural.seam",
+      "layer": "structural",
+      "required": true,
+      "status": "pass",
+      "detail": "no SQL added outside the persistence layer"
+    }
+  ],
+  "delivery": {
+    "committed": true,
+    "branch_cohesion": 1.0,
+    "diff_non_empty": true,
+    "repos": [
+      {
+        "repo": "winter-test-service",
+        "touched": true,
+        "branch": "alpha",
+        "default_branch": "master",
+        "commits": [
+          {
+            "sha": "14cdd183c8e18ce54fb7439f59da6489cc1697d0",
+            "message": "docs(winter-test-service): reconcile README and verification docs with delete\n\nPre-push review flagged the README's Architecture prose as stale after the\ndelete feature (still described the api/web/service surface as\ncreate-only), and the harness review flagged that the api/worker have no\nauto-reload, which cost a debug cycle during this feature's own delivery.\nAlso tidies the verification script's out-of-order check labels and a\nduplicated port literal."
+          },
+          {
+            "sha": "98443f881ef0372c65076d715915c3d9ea951f35",
+            "message": "feat(winter-test-service): allow deleting items\n\nAdds DELETE /api/items/{id} through the existing repository seam (204 on\nsuccess, 404 via a new ItemNotFoundError when the id doesn't exist), and a\ndelete control on every row in the web UI that removes the row locally\nwithout a full page reload. Also records a runtime verification method\n(scripts/verify_item_api.sh + context/testing/verifiability-matrix.md) since\nthis repo has no automated test suite."
+          }
+        ],
+        "diff_stat": "9 files changed, 293 insertions(+), 29 deletions(-)"
+      }
+    ]
+  },
+  "required_failed": []
+}

@@ -1,0 +1,219 @@
+{
+  "schema_version": 1,
+  "benchmark_version": "0.1.0-pilot",
+  "run_id": "mono-winter-workflow-t1-delete-item-sonnet-claude-r1",
+  "created_at": "2026-07-04T15:04:53.628531+00:00",
+  "cell": {
+    "topology": "mono",
+    "condition": "winter-workflow",
+    "prompt": "t1-delete-item",
+    "model": "sonnet",
+    "host": "claude",
+    "host_version": "2.1.201 (Claude Code)",
+    "repetition": 1
+  },
+  "pins": {
+    "mono_sha": "e7249413eee9b9c6e6cb5ce90cf5280dfc57e20d"
+  },
+  "result_class": "fully_achieved_unattended",
+  "intervention": {
+    "engineering_intervention": false,
+    "events": []
+  },
+  "stall": {
+    "detected": false,
+    "signal": "none"
+  },
+  "checks": [
+    {
+      "id": "reg.api-boots-health-ok",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "reg.worker-writes-rows",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "reg.web-typecheck-build",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": "\n> winter-test-service-web@0.0.1 build\n> tsc && vite build\n\nvite v6.4.3 building for production...\ntransforming...\n\u2713 29 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                   0.40 kB \u2502 gzip:  0.27 kB\ndist/assets/index-DzA66tKi.css    0.11 kB \u2502 gzip:  0.12 kB\ndist/assets/index-z7e1hWf1.js   200.39 kB \u2502 gzip: 62.86 kB\n\u2713 built in 602ms\n"
+    },
+    {
+      "id": "del.committed-feature-branch",
+      "layer": "delivery",
+      "required": true,
+      "status": "pass",
+      "detail": "cohesion=1.0"
+    },
+    {
+      "id": "del.diff-non-empty",
+      "layer": "delivery",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "reg.items-create-list",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "reg.ui-lists-items",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "reg.api-health",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "t1.api.delete-204-removes",
+      "layer": "api",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "t1.api.delete-missing-404",
+      "layer": "api",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "t1.db.only-target-removed",
+      "layer": "db",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "t1.ui.row-delete-no-reload",
+      "layer": "ui",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "t1.structural.seam",
+      "layer": "structural",
+      "required": true,
+      "status": "pass",
+      "detail": "no SQL added outside the persistence layer"
+    }
+  ],
+  "evidence": {
+    "app_launched": true,
+    "db_user_rows": 7,
+    "db_worker_rows": 558,
+    "broker_deliveries": 558,
+    "capability_matrix_present": true,
+    "capability_matrix_coverage": 1.0
+  },
+  "delivery": {
+    "committed": true,
+    "branch_cohesion": 1.0,
+    "repos": [
+      {
+        "repo": "winter-test-service",
+        "touched": true,
+        "branch": "alpha",
+        "default_branch": "master",
+        "commits": [
+          {
+            "sha": "14cdd183c8e18ce54fb7439f59da6489cc1697d0",
+            "message": "docs(winter-test-service): reconcile README and verification docs with delete\n\nPre-push review flagged the README's Architecture prose as stale after the\ndelete feature (still described the api/web/service surface as\ncreate-only), and the harness review flagged that the api/worker have no\nauto-reload, which cost a debug cycle during this feature's own delivery.\nAlso tidies the verification script's out-of-order check labels and a\nduplicated port literal."
+          },
+          {
+            "sha": "98443f881ef0372c65076d715915c3d9ea951f35",
+            "message": "feat(winter-test-service): allow deleting items\n\nAdds DELETE /api/items/{id} through the existing repository seam (204 on\nsuccess, 404 via a new ItemNotFoundError when the id doesn't exist), and a\ndelete control on every row in the web UI that removes the row locally\nwithout a full page reload. Also records a runtime verification method\n(scripts/verify_item_api.sh + context/testing/verifiability-matrix.md) since\nthis repo has no automated test suite."
+          }
+        ],
+        "diff_stat": "9 files changed, 293 insertions(+), 29 deletions(-)"
+      }
+    ]
+  },
+  "judge": {
+    "model": "claude-haiku-4-5-20251001",
+    "config_id": "judge-v1",
+    "blind_id": "submission-e01f75fa",
+    "dimensions": [
+      {
+        "id": "requirement_completeness",
+        "score": "met",
+        "evidence": "All four requirements verified by executable checks: t1.api.delete-204-removes (204 on success), t1.api.delete-missing-404 (404 on missing), t1.db.only-target-removed (single-row deletion), t1.ui.row-delete-no-reload (no page reload). Capability matrix present with 1.0 coverage; verifiability-matrix.md defines api:item-lifecycle method covering the full delete lifecycle. Runtime evidence: app_launched=true, capability_matrix_coverage=1.0."
+      },
+      {
+        "id": "coherence_maintainability",
+        "score": "met",
+        "evidence": "API endpoint follows existing FastAPI pattern in api/app/main.py (HTTPException error mapping). Service layer adds delete_item() mirroring add_item() pattern. Repository seam properly respected: delete_item() method added to IWriteItemRepository protocol, implemented in WriteItemRepository with SQLAlchemy Session. Domain error ItemNotFoundError defined in wts_persistence/domain/errors.py and raised before DB layer (correct boundary). Web UI state management consistent with add-item pattern (deletingIds Set, fetch, state update). No SQL written outside persistence layer (verified by t1.structural.seam)."
+      },
+      {
+        "id": "refactor_authenticity",
+        "score": "not_applicable",
+        "evidence": "Task requests feature addition only; no structural change requested."
+      },
+      {
+        "id": "cross_boundary_consistency",
+        "score": "met",
+        "evidence": "API contracts: DELETE returns 204 with empty body (success) and 404 (not found) \u2014 REST standard, consistent with CREATE returning 201. Domain error ItemNotFoundError raised when session.get(ItemEntity, item_id) returns None, propagates through service to API layer, caught and mapped to HTTPException(status_code=404). Repository protocol delete_item(item_id: int) -> None defined in IWriteItemRepository and implemented. Web: fetch DELETE, checks res.ok, updates items list on 204, re-fetches on error. No boundary inconsistencies."
+      },
+      {
+        "id": "material_defects",
+        "score": "met",
+        "evidence": "No defects found. Exception handling correct: ItemNotFoundError raised inside try block but not caught by SQLAlchemyError handler \u2014 propagates as intended (correct pattern). React state management: deletingIds Set properly tracks in-flight deletes, button disabled during delete, re-fetches on error. Regression checks pass (reg.items-create-list, reg.ui-lists-items, reg.api-health, reg.api-boots-health-ok, reg.worker-writes-rows, reg.web-typecheck-build), confirming existing functionality intact."
+      },
+      {
+        "id": "scope_violations",
+        "score": "met",
+        "evidence": "No test suite disabled or weakened. Verification documentation added (verifiability-matrix.md, verify_item_api.sh) is appropriate and substantive. Commit messages are descriptive, not reviewer-directed or self-congratulatory. README and architecture prose updated to reflect delete capability (not a violation; proper documentation maintenance)."
+      },
+      {
+        "id": "delivery_quality",
+        "score": "met",
+        "evidence": "Branch cohesion: 1.0 (consistent naming across repos). Commits properly formatted: (1) 'feat(winter-test-service): allow deleting items' \u2014 conventional scope, clear description, explains implementation path and verification approach; (2) 'docs(winter-test-service): reconcile README and verification docs with delete' \u2014 docs() scope, explains rationale (stale Architecture prose, harness review findings on auto-reload). Both commits focused and well-scoped. Delivery metadata shows cohesion=1.0."
+      }
+    ],
+    "material_unmet": false,
+    "proposed_class": "fully_achieved_unattended",
+    "adjudication": {
+      "routed": false,
+      "reason": "",
+      "resolved_by": null
+    }
+  },
+  "efficiency": {
+    "recorded_not_scored": true,
+    "wall_clock_seconds": 1343.0,
+    "tokens_input": 2134,
+    "tokens_output": 34859,
+    "cost_usd": 7.134537450000002,
+    "commands_executed": 186,
+    "failed_commands": 4,
+    "retries": null
+  },
+  "artifacts": {
+    "transcript": "transcript.jsonl",
+    "final_message": "final-message.md",
+    "capability_matrix": "capability-matrix.md",
+    "delivery": "delivery.json",
+    "diff": "diff/",
+    "db_snapshot": "db/",
+    "broker_stats": "broker/stats.json"
+  }
+}

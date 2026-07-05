@@ -1,0 +1,444 @@
+diff --git a/README.md b/README.md
+index 7b012ff..c293901 100644
+--- a/README.md
++++ b/README.md
+@@ -6,13 +6,13 @@ Every setting has a sensible default, so the whole stack runs locally with no co
+ 
+ ## Architecture
+ 
+-- **web** — a React + Vite single-page UI: lists items, adds items, shows an API/DB health badge, and can trigger a controlled API crash.
+-- **api** — a FastAPI/uvicorn service: serves item read/create and health, and exposes the diagnostic endpoints.
++- **web** — a React + Vite single-page UI: lists items, adds items, removes items, shows an API/DB health badge, and can trigger a controlled API crash.
++- **api** — a FastAPI/uvicorn service: serves item read/create/delete and health, and exposes the diagnostic endpoints.
+ - **worker** — a background Python loop that writes a heartbeat row to the database on a fixed cadence, and publishes each heartbeat to a RabbitMQ queue.
+ - **db** — Postgres 16, run as a Docker container.
+ - **broker** — RabbitMQ. The worker publishes each heartbeat to a `heartbeats` queue. In a winter workspace this is the shared `wws-rabbitmq` singleton, with a per-env vhost provisioned by `winter provision <env>` (see [Per-env RabbitMQ vhost](#per-env-rabbitmq-vhost) below).
+ 
+-The api and worker share one persistence layer (`wts_persistence/`): SQLAlchemy ORM entities and read/write repositories behind Protocol interfaces, with a domain service in the api that owns the item-creation rules. Neither service writes SQL directly. The worker's broker access follows the same shape in `wts_messaging/`: a pika publisher behind a Protocol interface, with pika confined to `wts_messaging/internal/`. Everything runs from source against one `uv`-managed virtualenv.
++The api and worker share one persistence layer (`wts_persistence/`): SQLAlchemy ORM entities and read/write repositories behind Protocol interfaces, with a domain service in the api that owns the item read/write rules. Neither service writes SQL directly. The worker's broker access follows the same shape in `wts_messaging/`: a pika publisher behind a Protocol interface, with pika confined to `wts_messaging/internal/`. Everything runs from source against one `uv`-managed virtualenv.
+ 
+ ## Configuration
+ 
+@@ -90,6 +90,7 @@ CREATE TABLE IF NOT EXISTS items (
+ - `GET  /api/health` — `{status, db}`, where `db` is `ok` or `down`.
+ - `GET  /api/items` — recent items, newest first.
+ - `POST /api/items` — body `{ "label": "..." }`; inserts a `source='api'` row and returns it.
++- `DELETE /api/items/{item_id}` — deletes the item; `204` on success, `404` if it does not exist.
+ - `POST /api/chaos/crash` — hard-crash the api process (`os._exit(1)`).
+ - `POST /api/chaos/error-log?n=N` — write N error lines to stderr (default `5`).
+ 
+diff --git a/api/app/main.py b/api/app/main.py
+index f4f0fbf..bc60072 100644
+--- a/api/app/main.py
++++ b/api/app/main.py
+@@ -10,7 +10,7 @@ from fastapi import FastAPI, HTTPException, Request, Query
+ from app.deps import ItemServiceDep, ReadItemRepositoryDep, build_write_item_repository
+ from app.schemas import HealthRead, ItemCreate, ItemRead
+ from app.services.item_service import ItemValidationError
+-from wts_persistence.domain.errors import RepositoryError
++from wts_persistence.domain.errors import ItemNotFoundError, RepositoryError
+ from wts_logging import configure_logging
+ 
+ 
+@@ -102,6 +102,14 @@ def create_item(body: ItemCreate, service: ItemServiceDep):
+         raise HTTPException(status_code=400, detail=str(exc))
+ 
+ 
++@app.delete("/api/items/{item_id}", status_code=204)
++def delete_item(item_id: int, service: ItemServiceDep):
++    try:
++        service.delete_item(item_id)
++    except ItemNotFoundError as exc:
++        raise HTTPException(status_code=404, detail=str(exc))
++
++
+ @app.post("/api/chaos/crash")
+ def chaos_crash():
+     logger.info("CHAOS: /api/chaos/crash triggered — calling os._exit(1)")
+diff --git a/api/app/services/item_service.py b/api/app/services/item_service.py
+index ebc3638..a3be19c 100644
+--- a/api/app/services/item_service.py
++++ b/api/app/services/item_service.py
+@@ -21,3 +21,6 @@ class ItemService:
+         if not cleaned:
+             raise ItemValidationError("label is required and must not be empty")
+         return self._items.add_item(cleaned, ItemSource.API)
++
++    def delete_item(self, item_id: int) -> None:
++        self._items.delete_item(item_id)
+diff --git a/context/testing/verifiability-matrix.md b/context/testing/verifiability-matrix.md
+new file mode 100644
+index 0000000..f30d489
+--- /dev/null
++++ b/context/testing/verifiability-matrix.md
+@@ -0,0 +1,43 @@
++# Verifiability matrix — winter-test-service
++
++The methods by which changes to this application are verified against runtime
++behavior. Each row carries a stable `<scope>:<method>` id so the same check can
++be selected and rerun by the next change and the next agent, rather than being
++re-improvised.
++
++This repository has **no automated unit/integration test suite**; verification
++is performed against a **running stack** (`winter service up <env> --wait`, or a
++plain local run per `README.md`). The rows below are the durable, rerunnable
++mechanisms for that.
++
++## Commands
++
++| Method id | Verifies | Command |
++|-----------|----------|---------|
++| `api:item-lifecycle` | The item HTTP API end-to-end: `GET /api/health`, `POST /api/items` (create, 201, `source=api`), `DELETE /api/items/{id}` (204 + empty body on success, 404 on a missing/already-deleted id), and that a delete removes exactly the targeted row while other rows survive. | `scripts/verify_item_api.sh [BASE_URL]` — `BASE_URL` defaults to `$WTS_API_BASE_URL` then the api's default local port (see README → Configuration); in a winter env pass the env's api base URL (e.g. `scripts/verify_item_api.sh http://localhost:6031`). Exit 0 iff all checks pass. Requires `bash`, `curl`, `jq`. |
++
++### Notes
++
++- `api:item-lifecycle` covers the delete endpoint (`DELETE /api/items/{item_id}`)
++  and doubles as a regression check for health, create, and list. It self-provisions
++  its own fixtures (creates a keeper + a delete target), so it needs no seed step.
++- The "removed exactly one row" assertion diffs the `GET /api/items` id set before
++  and after the delete. That endpoint returns at most 100 rows newest-first, so the
++  diff is exact only while the table is under that window; the script notes this in a
++  comment. The worker inserts a heartbeat row every couple of seconds, so ids grow
++  during a run — the check accounts for insert-only churn.
++- The api and worker processes run with no auto-reload (`uv run python -m app` /
++  `python -m worker.main`, no `--reload`) — unlike the web dev server, which does
++  hot-reload. After editing api/worker Python, restart the process (`./restart api`
++  / `./restart worker` from the feature-env directory) before rerunning this check,
++  or it will silently exercise the pre-edit code.
++
++## Manual testing
++
++| Method id | Verifies | Exercise |
++|-----------|----------|----------|
++| `web:item-delete` | The web UI's per-row delete control: clicking it removes the row without a full page reload, the deletion persists server-side, and add/list/health still work. | Browser exercise against the running web UI (e.g. http://localhost:`$WTS_WEB_PORT`) — requires a browser-capable verifier; out of scope for a `Bash`-only agent. Add an item, click its Delete button, confirm the row disappears with no page reload, and confirm via `GET /api/items` that it's gone server-side. |
++
++## Tools
++
++_(none yet — `api:item-lifecycle` is self-provisioning; add seed/reset tooling here if a future check needs pre-existing state it cannot create for itself.)_
+diff --git a/scripts/verify_item_api.sh b/scripts/verify_item_api.sh
+new file mode 100755
+index 0000000..39ffc23
+--- /dev/null
++++ b/scripts/verify_item_api.sh
+@@ -0,0 +1,149 @@
++#!/usr/bin/env bash
++#
++# verify_item_api.sh — runtime verification of the item API against a running stack.
++#
++# Exercises the full item lifecycle (health, create, list, delete) end-to-end
++# over HTTP, asserting status codes and observable persistence effects. This is
++# the durable, rerunnable method behind the `api:item-lifecycle` row of the
++# verifiability matrix (context/testing/verifiability-matrix.md).
++#
++# Usage:
++#   scripts/verify_item_api.sh [BASE_URL]
++#   BASE_URL defaults to $WTS_API_BASE_URL, then to http://localhost:7503
++#   (the api's default local port). In a winter feature env, pass the env's
++#   api base URL, e.g.  scripts/verify_item_api.sh http://localhost:6031
++#
++# Exit status is 0 iff every check passes; each check prints its request and the
++# observed status/body so a failure is self-describing.
++#
++# Requires: bash, curl, jq.
++
++set -uo pipefail
++
++BASE_URL="${1:-${WTS_API_BASE_URL:-http://localhost:7503}}"
++BASE_URL="${BASE_URL%/}"
++
++pass=0
++fail=0
++
++ok()   { printf '  PASS  %s\n' "$1"; pass=$((pass+1)); }
++bad()  { printf '  FAIL  %s\n' "$1"; fail=$((fail+1)); }
++info() { printf '        %s\n' "$1"; }
++
++# curl helper: response body is written to $BODY_FILE, the numeric HTTP status
++# is echoed to stdout. Callers do:  CODE=$(req METHOD PATH ...); BODY=$(cat "$BODY_FILE")
++# (The status is returned via stdout rather than a global so callers can invoke
++# req in a command substitution without losing it to the subshell.)
++BODY_FILE="$(mktemp)"
++trap 'rm -f "$BODY_FILE"' EXIT
++req() {
++  local method="$1" path="$2"; shift 2
++  curl -sS -X "$method" -o "$BODY_FILE" -w '%{http_code}' "$BASE_URL$path" "$@" \
++    || echo "000"
++}
++
++echo "== verify_item_api.sh against $BASE_URL =="
++
++# ---------------------------------------------------------------------------
++# Check 1: health still ok (regression guard for the existing surface)
++# ---------------------------------------------------------------------------
++code="$(req GET /api/health)"; h="$(cat "$BODY_FILE")"
++echo "REQ  GET  /api/health"
++info "-> HTTP $code  body=$h"
++if [ "$code" = "200" ] && [ "$(echo "$h" | jq -r '.status')" = "ok" ] \
++   && [ "$(echo "$h" | jq -r '.db')" = "ok" ]; then
++  ok "health returns 200 {status:ok, db:ok}"
++else
++  bad "health check did not return 200 {status:ok, db:ok}"
++fi
++
++# ---------------------------------------------------------------------------
++# Check 2: POST creates items (regression + setup). Create a "keeper" that
++# must survive the delete, and a "target" that we will delete.
++# ---------------------------------------------------------------------------
++keep_code="$(req POST /api/items -H 'Content-Type: application/json' -d '{"label":"verify-keeper"}')"
++keep="$(cat "$BODY_FILE")"
++KEEP_ID="$(echo "$keep" | jq -r '.id // empty')"
++echo "REQ  POST /api/items {\"label\":\"verify-keeper\"}"
++info "-> HTTP $keep_code  body=$keep"
++
++tgt_code="$(req POST /api/items -H 'Content-Type: application/json' -d '{"label":"delete-me"}')"
++tgt="$(cat "$BODY_FILE")"
++DEL_ID="$(echo "$tgt" | jq -r '.id // empty')"
++echo "REQ  POST /api/items {\"label\":\"delete-me\"}"
++info "-> HTTP $tgt_code  body=$tgt"
++
++if [ "$keep_code" = "201" ] && [ -n "$KEEP_ID" ] \
++   && [ "$tgt_code" = "201" ] && [ -n "$DEL_ID" ] \
++   && [ "$(echo "$tgt" | jq -r '.source')" = "api" ]; then
++  ok "POST /api/items creates items (201, source=api); keeper=$KEEP_ID target=$DEL_ID"
++else
++  bad "POST /api/items did not create items as expected"
++fi
++
++# Snapshot the id set before the delete (list is newest-first, capped at 100).
++req GET /api/items >/dev/null; before="$(cat "$BODY_FILE")"
++before_ids="$(echo "$before" | jq -r '.[].id' | LC_ALL=C sort)"
++
++# ---------------------------------------------------------------------------
++# Check 3: DELETE the target -> 204 with an empty body
++# ---------------------------------------------------------------------------
++code="$(req DELETE "/api/items/$DEL_ID")"; d="$(cat "$BODY_FILE")"
++echo "REQ  DELETE /api/items/$DEL_ID"
++info "-> HTTP $code  body=$(printf '%q' "$d")"
++if [ "$code" = "204" ] && [ -z "$d" ]; then
++  ok "DELETE existing id returns 204 with empty body"
++else
++  bad "DELETE existing id did not return 204/empty body"
++fi
++
++# ---------------------------------------------------------------------------
++# Check 4: after delete, target is gone; keeper survives; nothing else vanished.
++# ---------------------------------------------------------------------------
++req GET /api/items >/dev/null; after="$(cat "$BODY_FILE")"
++after_ids="$(echo "$after" | jq -r '.[].id' | LC_ALL=C sort)"
++echo "REQ  GET  /api/items  (post-delete)"
++target_absent=true
++keeper_present=false
++echo "$after_ids" | grep -qx "$DEL_ID" && target_absent=false
++echo "$after_ids" | grep -qx "$KEEP_ID" && keeper_present=true
++
++# Ids present before but not after, excluding the intended target. The worker
++# only ever inserts rows, so the only legitimate disappearance is the target
++# itself. (Caveat: the list endpoint returns at most 100 rows newest-first; if
++# the table exceeds ~100 rows during the run, an old id can fall out of the
++# window without being deleted. This check is exact while under that cap.)
++unexpected_gone="$(comm -23 <(echo "$before_ids") <(echo "$after_ids") | grep -vx "$DEL_ID" || true)"
++
++info "target_absent=$target_absent keeper_present=$keeper_present unexpected_removed=[${unexpected_gone//$'\n'/,}]"
++if $target_absent && $keeper_present && [ -z "$unexpected_gone" ]; then
++  ok "deletion removed exactly the target row; keeper and all other rows intact"
++else
++  bad "deletion did not remove exactly one row as expected"
++fi
++
++# ---------------------------------------------------------------------------
++# Check 5: DELETE a nonexistent id -> 404
++# ---------------------------------------------------------------------------
++code="$(req DELETE /api/items/999999999)"; n="$(cat "$BODY_FILE")"
++echo "REQ  DELETE /api/items/999999999"
++info "-> HTTP $code  body=$n"
++if [ "$code" = "404" ]; then
++  ok "DELETE nonexistent id returns 404"
++else
++  bad "DELETE nonexistent id did not return 404"
++fi
++
++# Bonus: deleting the already-deleted target is now also a 404 (not-found is
++# consistent), reinforcing that the row is truly gone.
++code="$(req DELETE "/api/items/$DEL_ID")"; n2="$(cat "$BODY_FILE")"
++echo "REQ  DELETE /api/items/$DEL_ID  (already deleted)"
++info "-> HTTP $code  body=$n2"
++if [ "$code" = "404" ]; then
++  ok "re-DELETE of the deleted id returns 404"
++else
++  bad "re-DELETE of the deleted id did not return 404"
++fi
++
++echo "== done: $pass passed, $fail failed =="
++[ "$fail" -eq 0 ]
+diff --git a/web/src/App.tsx b/web/src/App.tsx
+index 4ddfad3..202dfa5 100644
+--- a/web/src/App.tsx
++++ b/web/src/App.tsx
+@@ -53,6 +53,7 @@ export default function App() {
+   const [adding, setAdding] = useState(false)
+   const [crashPending, setCrashPending] = useState(false)
+   const [crashMsg, setCrashMsg] = useState<string | null>(null)
++  const [deletingIds, setDeletingIds] = useState<Set<number>>(new Set())
+ 
+   const fetchHealth = useCallback(async () => {
+     try {
+@@ -113,6 +114,26 @@ export default function App() {
+     }
+   }
+ 
++  async function handleDelete(id: number) {
++    setDeletingIds(prev => new Set(prev).add(id))
++    try {
++      const res = await fetch('/api/items/' + id, { method: 'DELETE' })
++      if (res.ok) {
++        setItems(prev => prev.filter(i => i.id !== id))
++      } else {
++        await fetchItems()
++      }
++    } catch {
++      await fetchItems()
++    } finally {
++      setDeletingIds(prev => {
++        const next = new Set(prev)
++        next.delete(id)
++        return next
++      })
++    }
++  }
++
+   async function handleCrash() {
+     if (!confirm('This will hard-crash the API process (os._exit). Proceed?')) return
+     setCrashPending(true)
+@@ -196,33 +217,55 @@ export default function App() {
+                 <th style={{ padding: '4px 8px' }}>Label</th>
+                 <th style={{ padding: '4px 8px' }}>Source</th>
+                 <th style={{ padding: '4px 8px' }}>Created at</th>
++                <th style={{ padding: '4px 8px' }}></th>
+               </tr>
+             </thead>
+             <tbody>
+-              {items.map(item => (
+-                <tr key={item.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
+-                  <td style={{ padding: '4px 8px', color: '#9ca3af' }}>{item.id}</td>
+-                  <td style={{ padding: '4px 8px' }}>{item.label}</td>
+-                  <td style={{ padding: '4px 8px' }}>
+-                    <span
+-                      style={{
+-                        display: 'inline-block',
+-                        padding: '1px 7px',
+-                        borderRadius: 9999,
+-                        fontSize: '0.75rem',
+-                        fontWeight: 600,
+-                        background: item.source === 'worker' ? '#ede9fe' : '#dbeafe',
+-                        color: item.source === 'worker' ? '#7c3aed' : '#1d4ed8',
+-                      }}
+-                    >
+-                      {item.source}
+-                    </span>
+-                  </td>
+-                  <td style={{ padding: '4px 8px', color: '#6b7280' }}>
+-                    {new Date(item.created_at).toLocaleString()}
+-                  </td>
+-                </tr>
+-              ))}
++              {items.map(item => {
++                const deleting = deletingIds.has(item.id)
++                return (
++                  <tr key={item.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
++                    <td style={{ padding: '4px 8px', color: '#9ca3af' }}>{item.id}</td>
++                    <td style={{ padding: '4px 8px' }}>{item.label}</td>
++                    <td style={{ padding: '4px 8px' }}>
++                      <span
++                        style={{
++                          display: 'inline-block',
++                          padding: '1px 7px',
++                          borderRadius: 9999,
++                          fontSize: '0.75rem',
++                          fontWeight: 600,
++                          background: item.source === 'worker' ? '#ede9fe' : '#dbeafe',
++                          color: item.source === 'worker' ? '#7c3aed' : '#1d4ed8',
++                        }}
++                      >
++                        {item.source}
++                      </span>
++                    </td>
++                    <td style={{ padding: '4px 8px', color: '#6b7280' }}>
++                      {new Date(item.created_at).toLocaleString()}
++                    </td>
++                    <td style={{ padding: '4px 8px' }}>
++                      <button
++                        onClick={() => handleDelete(item.id)}
++                        disabled={deleting}
++                        style={{
++                          padding: '3px 10px',
++                          background: '#fff',
++                          color: '#dc2626',
++                          border: '1px solid #dc2626',
++                          borderRadius: 4,
++                          fontSize: '0.8rem',
++                          cursor: deleting ? 'not-allowed' : 'pointer',
++                          opacity: deleting ? 0.5 : 1,
++                        }}
++                      >
++                        {deleting ? 'Deleting…' : 'Delete'}
++                      </button>
++                    </td>
++                  </tr>
++                )
++              })}
+             </tbody>
+           </table>
+         )}
+diff --git a/wts_persistence/domain/errors.py b/wts_persistence/domain/errors.py
+index 6c9166c..1a1e8a1 100644
+--- a/wts_persistence/domain/errors.py
++++ b/wts_persistence/domain/errors.py
+@@ -9,3 +9,7 @@ class RepositoryError(Exception):
+     Wraps the underlying library exception at the repository boundary so no
+     SQLAlchemy exception type escapes into the service or transport layers.
+     """
++
++
++class ItemNotFoundError(Exception):
++    """Raised when an operation targets an item id that does not exist."""
+diff --git a/wts_persistence/internal/item_repository.py b/wts_persistence/internal/item_repository.py
+index 40bbd39..fc95256 100644
+--- a/wts_persistence/internal/item_repository.py
++++ b/wts_persistence/internal/item_repository.py
+@@ -9,7 +9,7 @@ from sqlalchemy.engine import Engine
+ from sqlalchemy.exc import SQLAlchemyError
+ from sqlalchemy.orm import Session
+ 
+-from wts_persistence.domain.errors import RepositoryError
++from wts_persistence.domain.errors import ItemNotFoundError, RepositoryError
+ from wts_persistence.domain.item import Item, ItemSource
+ from wts_persistence.internal.entities import Base, ItemEntity
+ from wts_persistence.repositories.item_repository import (
+@@ -73,6 +73,17 @@ class WriteItemRepository(ReadItemRepository):
+         except SQLAlchemyError as exc:
+             raise self._wrap(exc, "failed to add item")
+ 
++    def delete_item(self, item_id: int) -> None:
++        try:
++            with Session(self._engine) as session:
++                entity = session.get(ItemEntity, item_id)
++                if entity is None:
++                    raise ItemNotFoundError(f"item {item_id} not found")
++                session.delete(entity)
++                session.commit()
++        except SQLAlchemyError as exc:
++            raise self._wrap(exc, "failed to delete item")
++
+ 
+ def _to_domain(entity: ItemEntity) -> Item:
+     """Map an ORM row to the domain object — entities never escape this package."""
+diff --git a/wts_persistence/repositories/item_repository.py b/wts_persistence/repositories/item_repository.py
+index d2a2513..9cbd80f 100644
+--- a/wts_persistence/repositories/item_repository.py
++++ b/wts_persistence/repositories/item_repository.py
+@@ -27,3 +27,5 @@ class IWriteItemRepository(IReadItemRepository, Protocol):
+     def init_schema(self) -> None: ...
+ 
+     def add_item(self, label: str, source: ItemSource) -> Item: ...
++
++    def delete_item(self, item_id: int) -> None: ...

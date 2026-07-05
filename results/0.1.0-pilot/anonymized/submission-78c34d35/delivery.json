@@ -1,0 +1,26 @@
+{
+  "branch_cohesion": 1.0,
+  "repos": [
+    {
+      "repo": "wts-api",
+      "branch": "feature/delete-item",
+      "commit_messages": [
+        "Add DELETE /api/items/{id} endpoint\n\nWires ItemService.delete_item through to the write repository's new\ndelete_item seam, and exposes it as DELETE /api/items/{id}: 204 when\nthe item is removed, 404 when the id doesn't exist.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
+      ]
+    },
+    {
+      "repo": "wts-persistence",
+      "branch": "feature/delete-item",
+      "commit_messages": [
+        "Add delete_item to the write item repository seam\n\nAdds delete_item(item_id) -> bool to both the IWriteItemRepository\nProtocol and the SQLAlchemy WriteItemRepository adapter, so item\ndeletion goes through the same repository seam as add/list \u2014 no SQL\noutside the adapter.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
+      ]
+    },
+    {
+      "repo": "wts-web",
+      "branch": "feature/delete-item",
+      "commit_messages": [
+        "Add per-row delete control to the items list\n\nEach row now has a Delete button that calls DELETE /api/items/{id}\nand removes the row from local state on success, so the list updates\nwithout a full page reload.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
+      ]
+    }
+  ]
+}

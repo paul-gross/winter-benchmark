@@ -1,0 +1,18 @@
+All clean, all committed on the consistent branch `feat/delete-item` across `wts-persistence`, `wts-api`, and `wts-web`, and services are still running healthy.
+
+## Summary
+
+Implemented item deletion across all three layers on branch `feat/delete-item` (consistent across `wts-persistence`, `wts-api`, `wts-web`), in the feature environment `alpha`.
+
+**Changes:**
+- `wts-persistence`: added `delete_item(item_id) -> bool` to `IWriteItemRepository` and its SQLAlchemy `WriteItemRepository` implementation (uses `Session.get`/`delete`, no raw SQL, wraps errors in `RepositoryError` like the sibling methods).
+- `wts-api`: added `ItemService.delete_item` (delegates to the repository seam) and `DELETE /api/items/{item_id}` route returning 204 on success, 404 via `HTTPException` when the service reports no row was deleted.
+- `wts-web`: added a "Delete" button to every item row; on click it calls `DELETE /api/items/{id}` and removes the row from local `items` state on success — no `fetchItems()`/reload needed.
+
+**Verification (all against the running `alpha` stack, ports from `winter env alpha`: api 6031, web 6030):**
+
+- **`DELETE` on an existing id → 204 + removes exactly that item**: `curl -X DELETE http://localhost:6031/api/items/7` → `204`; subsequent `GET /api/items` showed id 7 absent while all other ids remained. Verified via `curl -i` that the body is empty (`HTTP/1.1 204 No Content`).
+- **`DELETE` on a non-existent id → 404**: repeating the delete on the same id, and on an arbitrary unused id (`999999`), both returned `404`.
+- **Same layering as existing operations (repository seam, no SQL outside it)**: confirmed by code — `delete_item` lives beside `add_item` in `WriteItemRepository`, both are the only place SQLAlchemy/`Session` calls occur; route → service → repository mirrors the existing `add_item` path. Also caught and fixed a real gap during testing: the API's installed `wts-persistence` was a non-editable snapshot, so the new method wasn't visible until `uv sync --reinstall-package wts-persistence` — this reproduced a live `AttributeError`/500 before the fix, confirming the seam is genuinely wired through the installed package rather than just source.
+- **Every row has a delete control; list updates without a full reload**: drove the real UI with Playwright (Chromium) against `http://localhost:6030`. Added an item labeled `playwright-delete-target` via the UI form, confirmed it appeared, planted a `window` sentinel, clicked its row's Delete button, confirmed the row detached from the DOM and the sentinel survived (proving no full page reload), then confirmed via a direct `GET /api/items` that the item was truly gone server-side (not just optimistic client state). A follow-up screenshot (`/tmp/wts-items-with-delete.png`) showed 72 rows / 72 Delete buttons — one per row.
+- **Existing behavior unaffected**: same Playwright session showed the health badge ("API ok / DB ok"), the Add-item form, and the auto-refreshing list all working; the worker's heartbeat items kept appearing throughout, and adding items via the UI still worked as before.

@@ -1,0 +1,66 @@
+warning: `VIRTUAL_ENV=/work/bench/graders/.venv` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+INFO:     Started server process [2300]
+INFO:     Waiting for application startup.
+2026-07-04T16:22:53 INFO     api: DB schema initialised
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:51587 (Press CTRL+C to quit)
+2026-07-04T16:22:54 INFO     api: GET /api/health → 200
+INFO:     127.0.0.1:47048 - "GET /api/health HTTP/1.1" 200 OK
+2026-07-04T16:22:57 INFO     api: POST /api/items → 201
+INFO:     127.0.0.1:54700 - "POST /api/items HTTP/1.1" 201 Created
+2026-07-04T16:22:57 INFO     api: GET /api/items → 200
+INFO:     127.0.0.1:54700 - "GET /api/items HTTP/1.1" 200 OK
+2026-07-04T16:22:57 INFO     api: POST /api/items → 201
+INFO:     127.0.0.1:54700 - "POST /api/items HTTP/1.1" 201 Created
+2026-07-04T16:22:57 INFO     api: GET /api/items → 200
+INFO:     127.0.0.1:54700 - "GET /api/items HTTP/1.1" 200 OK
+2026-07-04T16:22:57 INFO     api: GET /api/health → 200
+INFO:     127.0.0.1:54708 - "GET /api/health HTTP/1.1" 200 OK
+2026-07-04T16:22:57 INFO     api: GET /api/health → 200
+INFO:     127.0.0.1:54734 - "GET /api/health HTTP/1.1" 200 OK
+2026-07-04T16:22:57 INFO     api: GET /api/items → 200
+INFO:     127.0.0.1:54724 - "GET /api/items HTTP/1.1" 200 OK
+2026-07-04T16:22:57 INFO     api: GET /api/items → 200
+INFO:     127.0.0.1:54744 - "GET /api/items HTTP/1.1" 200 OK
+2026-07-04T16:22:57 INFO     api: GET /api/health → 200
+INFO:     127.0.0.1:54700 - "GET /api/health HTTP/1.1" 200 OK
+2026-07-04T16:22:57 INFO     api: POST /api/items → 201
+INFO:     127.0.0.1:54700 - "POST /api/items HTTP/1.1" 201 Created
+2026-07-04T16:22:57 INFO     api: DELETE /api/items/5 → 204
+INFO:     127.0.0.1:54700 - "DELETE /api/items/5 HTTP/1.1" 204 No Content
+2026-07-04T16:22:57 INFO     api: GET /api/items → 200
+INFO:     127.0.0.1:54700 - "GET /api/items HTTP/1.1" 200 OK
+2026-07-04T16:22:57 INFO     api: DELETE /api/items/999999999 → 404
+INFO:     127.0.0.1:54700 - "DELETE /api/items/999999999 HTTP/1.1" 404 Not Found
+2026-07-04T16:22:57 INFO     api: POST /api/items → 201
+INFO:     127.0.0.1:54700 - "POST /api/items HTTP/1.1" 201 Created
+2026-07-04T16:22:57 INFO     api: DELETE /api/items/6 → 204
+INFO:     127.0.0.1:54700 - "DELETE /api/items/6 HTTP/1.1" 204 No Content
+2026-07-04T16:22:57 INFO     api: DELETE /api/items/6 → 404
+INFO:     127.0.0.1:54700 - "DELETE /api/items/6 HTTP/1.1" 404 Not Found
+2026-07-04T16:22:57 INFO     api: POST /api/items → 201
+INFO:     127.0.0.1:54700 - "POST /api/items HTTP/1.1" 201 Created
+2026-07-04T16:22:57 INFO     api: POST /api/items → 201
+INFO:     127.0.0.1:54700 - "POST /api/items HTTP/1.1" 201 Created
+2026-07-04T16:22:58 INFO     api: DELETE /api/items/8 → 204
+INFO:     127.0.0.1:54700 - "DELETE /api/items/8 HTTP/1.1" 204 No Content
+2026-07-04T16:22:58 INFO     api: GET /api/items → 200
+INFO:     127.0.0.1:54700 - "GET /api/items HTTP/1.1" 200 OK
+2026-07-04T16:22:58 INFO     api: POST /api/items → 201
+INFO:     127.0.0.1:54700 - "POST /api/items HTTP/1.1" 201 Created
+2026-07-04T16:22:58 INFO     api: GET /api/health → 200
+INFO:     127.0.0.1:54750 - "GET /api/health HTTP/1.1" 200 OK
+2026-07-04T16:22:58 INFO     api: GET /api/items → 200
+INFO:     127.0.0.1:54756 - "GET /api/items HTTP/1.1" 200 OK
+2026-07-04T16:22:58 INFO     api: GET /api/health → 200
+INFO:     127.0.0.1:54760 - "GET /api/health HTTP/1.1" 200 OK
+2026-07-04T16:22:58 INFO     api: GET /api/items → 200
+INFO:     127.0.0.1:54768 - "GET /api/items HTTP/1.1" 200 OK
+2026-07-04T16:22:58 INFO     api: DELETE /api/items/9 → 204
+INFO:     127.0.0.1:54780 - "DELETE /api/items/9 HTTP/1.1" 204 No Content
+2026-07-04T16:22:58 INFO     api: GET /api/items → 200
+INFO:     127.0.0.1:54700 - "GET /api/items HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [2300]

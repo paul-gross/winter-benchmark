@@ -1,0 +1,20 @@
+{
+  "committed": true,
+  "branch_cohesion": 1.0,
+  "diff_non_empty": true,
+  "repos": [
+    {
+      "repo": "winter-test-service",
+      "touched": true,
+      "branch": "alpha",
+      "default_branch": "master",
+      "commits": [
+        {
+          "sha": "ed5206ebeb854dab26f4979301d0021f1bdb647d",
+          "message": "feat(winter-test-service): support deleting items\n\nAdds DELETE /api/items/{id} through the repository seam (WriteItemRepository.delete_item),\na service-layer ItemNotFoundError mapped to 404, and a per-row delete control in the web UI\nthat removes the row from state without a full page reload.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
+        }
+      ],
+      "diff_stat": "6 files changed, 74 insertions(+), 1 deletion(-)"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "committed": true,
+  "branch_cohesion": 1.0,
+  "diff_non_empty": true,
+  "repos": [
+    {
+      "repo": "wts-api",
+      "touched": true,
+      "branch": "alpha",
+      "default_branch": "master",
+      "commits": [
+        {
+          "sha": "f09921ad016de768c8a69b31565e25a51ed17971",
+          "message": "feat(wts-api): add DELETE /api/items/{id} endpoint\n\nRoutes deletion through ItemService into wts-persistence's write repository\nseam, returning 204 on success and mapping ItemNotFoundError to 404."
+        }
+      ],
+      "diff_stat": "7 files changed, 267 insertions(+), 1 deletion(-)"
+    },
+    {
+      "repo": "wts-messaging",
+      "touched": false,
+      "branch": "alpha",
+      "default_branch": "master",
+      "commits": [],
+      "diff_stat": ""
+    },
+    {
+      "repo": "wts-persistence",
+      "touched": true,
+      "branch": "alpha",
+      "default_branch": "master",
+      "commits": [
+        {
+          "sha": "4f5ee51377763c9eb2b97840b9c6cb20d662ce0a",
+          "message": "feat(wts-persistence): add delete_item to the write repository seam\n\nIntroduces ItemNotFoundError as the not-found signal and implements\ndelete_item on WriteItemRepository so callers can remove an item by id\nwithout reaching around the repository seam."
+        }
+      ],
+      "diff_stat": "8 files changed, 206 insertions(+), 1 deletion(-)"
+    },
+    {
+      "repo": "wts-web",
+      "touched": true,
+      "branch": "alpha",
+      "default_branch": "master",
+      "commits": [
+        {
+          "sha": "c381fa5555e463ffbc3ca644203412f29a801225",
+          "message": "feat(wts-web): add per-row delete control to the items list\n\nAdds a delete button per row that calls DELETE /api/items/{id} and removes\nthe row from local state on success, with no full page reload."
+        }
+      ],
+      "diff_stat": "1 file changed, 28 insertions(+)"
+    },
+    {
+      "repo": "wts-worker",
+      "touched": false,
+      "branch": "alpha",
+      "default_branch": "master",
+      "commits": [],
+      "diff_stat": ""
+    }
+  ]
+}

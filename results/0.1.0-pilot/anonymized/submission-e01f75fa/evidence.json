@@ -1,0 +1,8 @@
+{
+  "app_launched": true,
+  "db_user_rows": 7,
+  "db_worker_rows": 558,
+  "broker_deliveries": 558,
+  "capability_matrix_present": true,
+  "capability_matrix_coverage": 1.0
+}

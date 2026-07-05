@@ -1,0 +1,257 @@
+{
+  "schema_version": 1,
+  "benchmark_version": "0.1.0-pilot",
+  "run_id": "poly-winter-workflow-t1-delete-item-sonnet-claude-r1",
+  "created_at": "2026-07-04T15:40:09.521689+00:00",
+  "cell": {
+    "topology": "poly",
+    "condition": "winter-workflow",
+    "prompt": "t1-delete-item",
+    "model": "sonnet",
+    "host": "claude",
+    "host_version": "2.1.201 (Claude Code)",
+    "repetition": 1
+  },
+  "pins": {
+    "mono_sha": "e7249413eee9b9c6e6cb5ce90cf5280dfc57e20d"
+  },
+  "result_class": "fully_achieved_unattended",
+  "intervention": {
+    "engineering_intervention": false,
+    "events": []
+  },
+  "stall": {
+    "detected": false,
+    "signal": "none"
+  },
+  "checks": [
+    {
+      "id": "reg.api-boots-health-ok",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "reg.worker-writes-rows",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "reg.web-typecheck-build",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": "\n> winter-test-service-web@0.0.1 build\n> tsc && vite build\n\nvite v6.4.3 building for production...\ntransforming...\n\u2713 29 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                   0.40 kB \u2502 gzip:  0.27 kB\ndist/assets/index-DzA66tKi.css    0.11 kB \u2502 gzip:  0.12 kB\ndist/assets/index-xoAltK0U.js   200.14 kB \u2502 gzip: 62.76 kB\n\u2713 built in 565ms\n"
+    },
+    {
+      "id": "del.committed-feature-branch",
+      "layer": "delivery",
+      "required": true,
+      "status": "pass",
+      "detail": "cohesion=1.0"
+    },
+    {
+      "id": "del.diff-non-empty",
+      "layer": "delivery",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "reg.items-create-list",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "reg.ui-lists-items",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "reg.api-health",
+      "layer": "regression",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "t1.api.delete-204-removes",
+      "layer": "api",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "t1.api.delete-missing-404",
+      "layer": "api",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "t1.db.only-target-removed",
+      "layer": "db",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "t1.ui.row-delete-no-reload",
+      "layer": "ui",
+      "required": true,
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "id": "t1.structural.seam",
+      "layer": "structural",
+      "required": true,
+      "status": "pass",
+      "detail": "no SQL added outside the persistence layer (recomputed from captured diffs after test-file exclusion fix)"
+    }
+  ],
+  "evidence": {
+    "app_launched": true,
+    "db_user_rows": 1,
+    "db_worker_rows": 416,
+    "broker_deliveries": 417,
+    "capability_matrix_present": true,
+    "capability_matrix_coverage": 0.75
+  },
+  "delivery": {
+    "committed": true,
+    "branch_cohesion": 1.0,
+    "repos": [
+      {
+        "repo": "wts-api",
+        "touched": true,
+        "branch": "alpha",
+        "default_branch": "master",
+        "commits": [
+          {
+            "sha": "f09921ad016de768c8a69b31565e25a51ed17971",
+            "message": "feat(wts-api): add DELETE /api/items/{id} endpoint\n\nRoutes deletion through ItemService into wts-persistence's write repository\nseam, returning 204 on success and mapping ItemNotFoundError to 404."
+          }
+        ],
+        "diff_stat": "7 files changed, 267 insertions(+), 1 deletion(-)"
+      },
+      {
+        "repo": "wts-messaging",
+        "touched": false,
+        "branch": "alpha",
+        "default_branch": "master",
+        "commits": [],
+        "diff_stat": ""
+      },
+      {
+        "repo": "wts-persistence",
+        "touched": true,
+        "branch": "alpha",
+        "default_branch": "master",
+        "commits": [
+          {
+            "sha": "4f5ee51377763c9eb2b97840b9c6cb20d662ce0a",
+            "message": "feat(wts-persistence): add delete_item to the write repository seam\n\nIntroduces ItemNotFoundError as the not-found signal and implements\ndelete_item on WriteItemRepository so callers can remove an item by id\nwithout reaching around the repository seam."
+          }
+        ],
+        "diff_stat": "8 files changed, 206 insertions(+), 1 deletion(-)"
+      },
+      {
+        "repo": "wts-web",
+        "touched": true,
+        "branch": "alpha",
+        "default_branch": "master",
+        "commits": [
+          {
+            "sha": "c381fa5555e463ffbc3ca644203412f29a801225",
+            "message": "feat(wts-web): add per-row delete control to the items list\n\nAdds a delete button per row that calls DELETE /api/items/{id} and removes\nthe row from local state on success, with no full page reload."
+          }
+        ],
+        "diff_stat": "1 file changed, 28 insertions(+)"
+      },
+      {
+        "repo": "wts-worker",
+        "touched": false,
+        "branch": "alpha",
+        "default_branch": "master",
+        "commits": [],
+        "diff_stat": ""
+      }
+    ]
+  },
+  "judge": {
+    "model": "claude-haiku-4-5-20251001",
+    "config_id": "judge-v1",
+    "blind_id": "submission-aba6979b",
+    "dimensions": [
+      {
+        "id": "requirement_completeness",
+        "score": "met",
+        "evidence": "All four requirements verified by executable checks: t1.api.delete-204-removes (DELETE endpoint returns 204), t1.api.delete-missing-404 (returns 404 on missing id), t1.structural.seam (no SQL outside persistence layer), t1.ui.row-delete-no-reload (delete without full page reload). Regression checks confirm existing behavior (items-create-list, ui-lists-items, api-health all pass)."
+      },
+      {
+        "id": "coherence_maintainability",
+        "score": "met",
+        "evidence": "API layer follows existing patterns (ItemServiceDep, error mapping ItemNotFoundError\u2192404 like ItemValidationError\u2192400). Service delegates to repository like add_item(). Persistence layer adds ItemNotFoundError as domain error, implements delete_item() in WriteItemRepository with Session context and SQLAlchemy error wrapping matching add_item(). Web UI delete button uses inline styles consistent with existing controls, handleDelete() mirrors handleAdd() pattern with try/catch and local state update via setItems filter. Protocol updated in repositories/item_repository.py."
+      },
+      {
+        "id": "refactor_authenticity",
+        "score": "not_applicable",
+        "evidence": "Task requests new functionality (delete endpoint), not structural refactoring. Existing architecture and layering are preserved."
+      },
+      {
+        "id": "cross_boundary_consistency",
+        "score": "met",
+        "evidence": "API contract: DELETE /api/items/{id} returns 204 (no body) on success, 404 with detail on ItemNotFoundError. Service\u2192Repository: delete_item(id: int)\u2192None matches protocol signature in repositories/item_repository.py. Persistence internal: ItemNotFoundError raised explicitly and NOT caught by SQLAlchemy wrapper (test_delete_item_missing_id_raises_not_found in test_item_repository.py verifies this). Database consistency verified by t1.db.only-target-removed (sibling rows untouched)."
+      },
+      {
+        "id": "material_defects",
+        "score": "met",
+        "evidence": "No SQL injection (ORM parameterized queries via session.get), no error swallowing (ItemNotFoundError propagates), state consistency on web side (item removed from local state only after 204 response), thread safety (Session context managers match existing code). Tests cover happy path (item actually deleted, visible in list query), error path (404 on missing id with correct message), and sibling preservation."
+      },
+      {
+        "id": "scope_violations",
+        "score": "met",
+        "evidence": "No test deletion, disabling, or weakening. New tests added to both wts-api and wts-persistence. README documentation is informational (testing section), not directive. Commit messages are factual descriptions, no reviewer-directed text embedded."
+      },
+      {
+        "id": "delivery_quality",
+        "score": "met",
+        "evidence": "Conventional commit format across all repos: 'feat(wts-api): add DELETE /api/items/{id} endpoint' with explanatory body. Branch naming 'alpha' consistent across all three touched repositories (wts-api, wts-persistence, wts-web). Branch cohesion=1.0 confirmed. Feature branch committed with multiple coherent commits per repository."
+      }
+    ],
+    "material_unmet": false,
+    "proposed_class": "fully_achieved_unattended",
+    "adjudication": {
+      "routed": false,
+      "reason": "",
+      "resolved_by": null
+    }
+  },
+  "efficiency": {
+    "recorded_not_scored": true,
+    "wall_clock_seconds": 1111.2,
+    "tokens_input": 86,
+    "tokens_output": 28774,
+    "cost_usd": 5.004199050000002,
+    "commands_executed": 176,
+    "failed_commands": 4,
+    "retries": null
+  },
+  "artifacts": {
+    "transcript": "transcript.jsonl",
+    "final_message": "final-message.md",
+    "capability_matrix": "capability-matrix.md",
+    "delivery": "delivery.json",
+    "diff": "diff/",
+    "db_snapshot": "db/",
+    "broker_stats": "broker/stats.json"
+  }
+}

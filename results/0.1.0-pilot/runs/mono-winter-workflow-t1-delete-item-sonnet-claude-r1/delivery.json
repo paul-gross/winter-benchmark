@@ -1,0 +1,24 @@
+{
+  "committed": true,
+  "branch_cohesion": 1.0,
+  "diff_non_empty": true,
+  "repos": [
+    {
+      "repo": "winter-test-service",
+      "touched": true,
+      "branch": "alpha",
+      "default_branch": "master",
+      "commits": [
+        {
+          "sha": "14cdd183c8e18ce54fb7439f59da6489cc1697d0",
+          "message": "docs(winter-test-service): reconcile README and verification docs with delete\n\nPre-push review flagged the README's Architecture prose as stale after the\ndelete feature (still described the api/web/service surface as\ncreate-only), and the harness review flagged that the api/worker have no\nauto-reload, which cost a debug cycle during this feature's own delivery.\nAlso tidies the verification script's out-of-order check labels and a\nduplicated port literal."
+        },
+        {
+          "sha": "98443f881ef0372c65076d715915c3d9ea951f35",
+          "message": "feat(winter-test-service): allow deleting items\n\nAdds DELETE /api/items/{id} through the existing repository seam (204 on\nsuccess, 404 via a new ItemNotFoundError when the id doesn't exist), and a\ndelete control on every row in the web UI that removes the row locally\nwithout a full page reload. Also records a runtime verification method\n(scripts/verify_item_api.sh + context/testing/verifiability-matrix.md) since\nthis repo has no automated test suite."
+        }
+      ],
+      "diff_stat": "9 files changed, 293 insertions(+), 29 deletions(-)"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "committed": true,
+  "branch_cohesion": 1.0,
+  "diff_non_empty": true,
+  "repos": [
+    {
+      "repo": "wts-api",
+      "touched": true,
+      "branch": "feature/delete-item",
+      "default_branch": "master",
+      "commits": [
+        {
+          "sha": "0b572d5cfd08531e147e63a25f3c70a19355a6ab",
+          "message": "Add DELETE /api/items/{id} endpoint\n\nWires ItemService.delete_item through to the write repository's new\ndelete_item seam, and exposes it as DELETE /api/items/{id}: 204 when\nthe item is removed, 404 when the id doesn't exist.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
+        }
+      ],
+      "diff_stat": "2 files changed, 9 insertions(+)"
+    },
+    {
+      "repo": "wts-messaging",
+      "touched": false,
+      "branch": "master",
+      "default_branch": "master",
+      "commits": [],
+      "diff_stat": ""
+    },
+    {
+      "repo": "wts-persistence",
+      "touched": true,
+      "branch": "feature/delete-item",
+      "default_branch": "master",
+      "commits": [
+        {
+          "sha": "1acca639fbcc80d4d9c20ffb6941527489a47946",
+          "message": "Add delete_item to the write item repository seam\n\nAdds delete_item(item_id) -> bool to both the IWriteItemRepository\nProtocol and the SQLAlchemy WriteItemRepository adapter, so item\ndeletion goes through the same repository seam as add/list \u2014 no SQL\noutside the adapter.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
+        }
+      ],
+      "diff_stat": "2 files changed, 14 insertions(+), 1 deletion(-)"
+    },
+    {
+      "repo": "wts-web",
+      "touched": true,
+      "branch": "feature/delete-item",
+      "default_branch": "master",
+      "commits": [
+        {
+          "sha": "6dffaa2aef53c1388b7d4bfd38ec457376f133a1",
+          "message": "Add per-row delete control to the items list\n\nEach row now has a Delete button that calls DELETE /api/items/{id}\nand removes the row from local state on success, so the list updates\nwithout a full page reload.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
+        }
+      ],
+      "diff_stat": "1 file changed, 46 insertions(+)"
+    },
+    {
+      "repo": "wts-worker",
+      "touched": false,
+      "branch": "master",
+      "default_branch": "master",
+      "commits": [],
+      "diff_stat": ""
+    }
+  ]
+}
