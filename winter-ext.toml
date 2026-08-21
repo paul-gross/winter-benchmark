@@ -1,0 +1,29 @@
+# winter-benchmark measures agent autonomy across winter workspace topologies. It
+# is a project repo, not an installed extension (it ships no skills or agents to
+# symlink) — this manifest exists only to declare module identity and the
+# extensions its fixtures reference, following the winter-docs precedent. Without
+# it the repo has no manifest to walk up to, so every file in it is attributed to
+# the core `workspace` module and each reference below reads as a layering
+# inversion.
+name = "winter-benchmark"
+
+# The modules this repo references by `<name>:/path` notation, which is what
+# `requires` means — not everything environments/pins.toml pins (that list also
+# covers `winter` and `winter-workflow`, which nothing here references, and
+# `winter` is core besides). Nothing in winter depends back on the benchmark.
+requires = ["winter-service-docker", "winter-service-tmux", "winter-test-service"]
+
+# Findings this repo has judged acceptable, declared here rather than in the
+# workspace so the repo lints clean in any workspace that installs it. Globs are
+# repo-relative; `**` descends. Narrowed to a single check wherever possible —
+# a blanket path ignore would also switch off the checks that still apply.
+[lint.ignore.checks]
+# The workspace template's links point at `.winter/config/…` paths that exist
+# only once the template has been instantiated into a real workspace. They are
+# correct for the workspace this file becomes, and unresolvable where it sits.
+link-anchors = ["environments/workspace-template/**"]
+
+# Recorded pilot results quote machine-absolute paths verbatim. They are data —
+# an observation of what a run produced — not prose to be rewritten into
+# canonical notation.
+path-notation = ["results/**"]
