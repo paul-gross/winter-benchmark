@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    name: Python
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Syntax check
+        run: python3 -m compileall -q .
+      # Placeholder: `uvx ruff check .` does not pass yet, and there is no unit test suite.
+      # Replace this step with them once both exist and pass.
+      - name: Lint and tests (placeholder)
+        run: "true"
