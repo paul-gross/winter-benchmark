@@ -1,5 +1,6 @@
 {
   "name": "bench-graders",
+  "license": "SEE LICENSE IN ../LICENSE",
   "private": true,
   "version": "0.1.0",
   "description": "Hidden Playwright acceptance suite for the winter autonomy benchmark",

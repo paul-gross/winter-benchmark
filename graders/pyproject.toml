@@ -2,6 +2,7 @@
 name = "bench-graders"
 version = "0.1.0"
 description = "Grading orchestrator for the winter autonomy benchmark"
+license = "FSL-1.1-ALv2"
 requires-python = ">=3.12"
 dependencies = [
     "pika==1.3.2",

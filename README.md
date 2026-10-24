@@ -38,3 +38,7 @@ python3 runner/bench.py run \
 **The `graders/` and `prompts/variants/` trees must never be visible to an
 implementation agent.** The runner guarantees this by construction (the sandbox
 only mounts the cell's environment); keep it true for any manual run too.
+
+## License
+
+Source-available under the Functional Source License 1.1 (FSL-1.1-ALv2). Each release converts to Apache License 2.0 two years after it ships. See LICENSE.
